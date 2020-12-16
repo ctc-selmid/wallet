@@ -1,2 +1,2 @@
-# wallet
-Repository for Identity Wallet
+### Implementation
+- Identity Wallet
