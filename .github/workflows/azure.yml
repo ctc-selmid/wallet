@@ -40,7 +40,6 @@ jobs:
         # Build and test the project, then
         # deploy to Azure Web App.
         yarn
-        expo build:web
     - name: 'Deploy to Azure WebApp'
       uses: azure/webapps-deploy@v2
       with:
