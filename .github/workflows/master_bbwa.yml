@@ -20,11 +20,16 @@ jobs:
       with:
         node-version: '12.x'
 
-    - name: npm install, build, and test
+    - uses: expo/expo-github-action@v5
+      with:
+        expo-version: 4.x
+        expo-username: ${{ secrets.EXPO_CLI_USERNAME }}
+        expo-password: ${{ secrets.EXPO_CLI_PASSWORD }}
+
+    - name: deploy web-build as a target
       run: |
-        npm install
-        npm run build --if-present
-        npm run test --if-present
+        yarn
+        expo build:web
 
     - name: 'Deploy to Azure Web App'
       uses: azure/webapps-deploy@v2
