@@ -20,21 +20,16 @@ jobs:
       with:
         node-version: '12.x'
 
-    - uses: expo/expo-github-action@v5
-      with:
-        expo-version: 4.x
-        expo-username: ${{ secrets.EXPO_CLI_USERNAME }}
-        expo-password: ${{ secrets.EXPO_CLI_PASSWORD }}
-
-    - name: deploy web-build as a target
+    - name: npm install, build, and test
       run: |
-        yarn
-        expo build:web
-        
+        npm install
+        npm run build --if-present
+        npm run test --if-present
+
     - name: 'Deploy to Azure Web App'
       uses: azure/webapps-deploy@v2
       with:
         app-name: 'bbwa'
         slot-name: 'production'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_73a36673c25e49d8b60d94cd514019d7 }}
+        publish-profile: ${{ secrets.AzureAppService_PublishProfile_b400a742c4ca4387ab3a1bf4b21ca630 }}
         package: .
