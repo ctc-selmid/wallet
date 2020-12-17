@@ -126,7 +126,8 @@ export default ({ navigation }) => {
   const authenticate = async (openIdConfigurationUri, client_id) => {
     const openIdConfigurationResponse = await axios.get(openIdConfigurationUri);
     const openIdConfiguration = openIdConfigurationResponse.data;
-    const redirect_uri = "https://browser-wallet.azurewebsites.net/";
+    // const redirect_uri = "https://browser-wallet.azurewebsites.net/";
+    const redirect_uri = "https://wallet.selmid.me/";
     const authorizationUri = `${openIdConfiguration.authorization_endpoint}&redirect_uri=${redirect_uri}&client_id=${client_id}&response_type=code&scope=openid`;
     Linking.openURL(authorizationUri);
   };
