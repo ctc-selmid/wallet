@@ -20,9 +20,8 @@ jobs:
       with:
         node-version: '12.x'
 
-    - name: npm install, build, and test
-      run: |
-        yarn
+    - name: deploy web-build as a target
+      working-directory: 'web-build'
 
     - name: 'Deploy to Azure Web App'
       uses: azure/webapps-deploy@v2
