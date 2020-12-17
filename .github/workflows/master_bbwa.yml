@@ -20,11 +20,17 @@ jobs:
       with:
         node-version: '12.x'
 
+    - uses: expo/expo-github-action@v5
+      with:
+        expo-version: 3.x
+        expo-username: ${{ secrets.EXPO_CLI_USERNAME }}
+        expo-password: ${{ secrets.EXPO_CLI_PASSWORD }}
+
     - name: deploy web-build as a target
       run: |
         yarn
-      working-directory: 'web-build'
-
+        expo build:web
+        
     - name: 'Deploy to Azure Web App'
       uses: azure/webapps-deploy@v2
       with:
