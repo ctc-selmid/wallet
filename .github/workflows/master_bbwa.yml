@@ -21,6 +21,8 @@ jobs:
         node-version: '12.x'
 
     - name: deploy web-build as a target
+      run: |
+        yarn
       working-directory: 'web-build'
 
     - name: 'Deploy to Azure Web App'
