@@ -17,34 +17,38 @@ export default ({ navigation }) => {
     if (!vcState) {
       return null;
     } else {
-      const Cards = Object.keys(vcState).map((key, index) => {
-        const { card } = vcState[key];
-        return (
-          <View key={key}>
-            {index > 0 && <Divider style={tailwind("mx-2 my-4")} />}
-            <Credential
-              title={card.title}
-              icon={card.logo.uri}
-              issuedBy={card.issuedBy}
-              textColor={card.textColor}
-              backgroundColor={card.backgroundColor}
-            />
-            <Text
-              onPress={() => detail(key)}
-              style={[tailwind("text-center text-xs text-blue-600 mt-4")]}
-            >
-              View detail
-            </Text>
-          </View>
-        );
+      const Cards = Object.keys(vcState).map((credentialType, index) => {
+        const issuer = vcState[credentialType];
+        return Object.keys(issuer).map((iss, index) => {
+          const { card } = issuer[iss];
+          return (
+            <View key={iss}>
+              {index > 0 && <Divider style={tailwind("mx-2 my-4")} />}
+              <Credential
+                title={card.title}
+                icon={card.logo.uri}
+                issuedBy={card.issuedBy}
+                textColor={card.textColor}
+                backgroundColor={card.backgroundColor}
+              />
+              <Text
+                onPress={() => detail(credentialType, iss)}
+                style={[tailwind("text-center text-xs text-blue-600 mt-4")]}
+              >
+                View detail
+              </Text>
+            </View>
+          );
+        });
       });
       return <Section>{Cards}</Section>;
     }
   };
 
-  const detail = (key) => {
+  const detail = (credentialType, iss) => {
     navigation.navigate("Credential", {
-      key: key,
+      credentialType,
+      iss,
     });
   };
 
