@@ -1,6 +1,6 @@
 import * as Linking from "expo-linking";
 import * as React from "react";
-import { Card, Divider, Button, Header } from "react-native-elements";
+import { Card, Divider, Button, Header, CheckBox } from "react-native-elements";
 import AsyncStorage from "@react-native-community/async-storage";
 import { Platform } from "react-native";
 
@@ -18,6 +18,7 @@ const qs = require("querystring");
 
 export default ({ navigation }) => {
   const wallet = React.useContext(WalletContext) as Wallet;
+  const [selectedVc, setselectedVc] = React.useState<any>();
   const {
     manifestState,
     requestState,
@@ -63,12 +64,12 @@ export default ({ navigation }) => {
       attestations = {
         presentations: {
           [manifestState.input.attestations.presentations[0].credentialType]:
-            vcState.vc,
+            selectedVc.vc,
         },
       };
-    }    
+    }
 
-    if(modeState === "receive"){
+    if (modeState === "receive") {
       const payload = {
         aud: manifestState.input.credentialIssuer,
         contract:
@@ -91,17 +92,24 @@ export default ({ navigation }) => {
       }
       const vc = {
         ...parsed,
-        [requestState.presentation_definition.input_descriptors[0].schema.uri[0]]: {
-          vc: vcResponse.data.vc,
-          card: manifestState.display.card,
+        [requestState.presentation_definition.input_descriptors[0].schema
+          .uri[0]]: {
+          ...parsed[
+            requestState.presentation_definition.input_descriptors[0].schema
+              .uri[0]
+          ],
+          [manifestState.input.issuer]: {
+            vc: vcResponse.data.vc,
+            card: manifestState.display.card,
+          },
         },
       };
       await AsyncStorage.setItem("@vc", JSON.stringify(vc));
     } else if (modeState === "present") {
       const attestations = {
         presentations: {
-          [requestState.presentation_definition.input_descriptors[0].schema.uri[0]]:
-            vcState.vc,
+          [requestState.presentation_definition.input_descriptors[0].schema
+            .uri[0]]: selectedVc.vc,
         },
       };
       const payload = {
@@ -112,8 +120,11 @@ export default ({ navigation }) => {
       };
       const selfIssuedIdToken = wallet.siop(payload);
       await axios.post(
-        appendCorsAnywhere(Platform.OS,requestState.redirect_uri),
-        qs.stringify({id_token: selfIssuedIdToken, state: requestState.state}),
+        appendCorsAnywhere(Platform.OS, requestState.redirect_uri),
+        qs.stringify({
+          id_token: selfIssuedIdToken,
+          state: requestState.state,
+        }),
         {
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
         }
@@ -168,16 +179,26 @@ export default ({ navigation }) => {
       <Card>
         <Card.Title>Credentials Required</Card.Title>
         <Card.Divider />
-        <Credential
-          title={presentaionManifestState.display.card.title}
-          icon={presentaionManifestState.display.card.logo.uri}
-          issuedBy={presentaionManifestState.display.card.issuedBy}
-          textColor={presentaionManifestState.display.card.textColor}
-          backgroundColor={
-            presentaionManifestState.display.card.backgroundColor
-          }
-          size="40"
-        />
+        {Object.keys(vcState).map((key, index) => {
+          const { card } = vcState[key];
+          return (
+            <Section key={key}>
+              <Credential
+                title={card.title}
+                icon={card.logo.uri}
+                issuedBy={card.issuedBy}
+                textColor={card.textColor}
+                backgroundColor={card.backgroundColor}
+                size="40"
+              />
+              <CheckBox
+                title="Click Here"
+                checked={selectedVc === vcState[key]}
+                onPress={() => setselectedVc(vcState[key])}
+              />
+            </Section>
+          );
+        })}
       </Card>
     );
   };
@@ -204,12 +225,11 @@ export default ({ navigation }) => {
         />
 
         <Container>
-          <CredentialsToBeIssued />
+          {modeState !== "present" && <CredentialsToBeIssued />}
           <Divider />
-          {manifestState.input.attestations.idTokens && modeState!=="present" && (
-            <IdTokensToBeSubmitted />
-          )}
-          {presentaionManifestState && <CredentialsToBeSubmitted />}
+          {manifestState.input.attestations.idTokens &&
+            modeState !== "present" && <IdTokensToBeSubmitted />}
+          {vcState && modeState === "present" && <CredentialsToBeSubmitted />}
           <Button
             style={tailwind("m-4 mt-8")}
             title="Submit"

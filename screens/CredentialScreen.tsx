@@ -15,9 +15,8 @@ export default ({ route, navigation }) => {
     if (!vcState) {
       return null;
     } else {
-      const { key } = route.params;
-      const cardOne = vcState[key];
-
+      const { credentialType, iss } = route.params;
+      const cardOne = vcState[credentialType][iss];
       const decoded = jwt.decode(cardOne.vc);
       const subject = decoded.vc.credentialSubject;
       return (
