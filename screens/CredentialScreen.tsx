@@ -5,12 +5,26 @@ import Container from "../components/atoms/Container";
 import Layout from "../components/atoms/Layout";
 import Section from "../components/atoms/Section";
 import Credential from "../components/molecules/Credential";
+import AsyncStorage from "@react-native-community/async-storage";
 
 import { initializeHome } from "../hooks";
 import { jwt } from "../modules";
 
 export default ({ route, navigation }) => {
   const { vcState } = initializeHome();
+
+  const deleteCredential = async (credentialType, iss) => {
+    const original = await AsyncStorage.getItem("@vc");
+    let parsed;
+    if (original) {
+      parsed = JSON.parse(original);
+    }
+    delete parsed[credentialType][iss];
+    const vc = parsed;
+    await AsyncStorage.setItem("@vc", JSON.stringify(vc));
+    navigation.navigate("Home");
+  };
+
   const Credentials = () => {
     if (!vcState) {
       return null;
@@ -40,6 +54,12 @@ export default ({ route, navigation }) => {
                   >{`${key}: ${subject[key]}`}</Text>
                 </Card>
               ))}
+              <Text
+                onPress={() => deleteCredential(credentialType, iss)}
+                style={[tailwind("text-center text-xs text-red-600 mt-8")]}
+              >
+                Delete Credential
+              </Text>
             </>
           )}
           {}
