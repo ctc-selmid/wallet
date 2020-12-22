@@ -13,14 +13,13 @@ import { jwt } from "../modules";
 export default ({ route, navigation }) => {
   const { vcState } = initializeHome();
 
-  const deleteCredential = async () => {
-    console.log(vcState);
+  const deleteCredential = async (credentialType, iss) => {
     const original = await AsyncStorage.getItem("@vc");
     let parsed;
     if (original) {
       parsed = JSON.parse(original);
     }
-    delete parsed[Object.keys(vcState)[0]];
+    delete parsed[credentialType][iss];
     const vc = parsed;
     await AsyncStorage.setItem("@vc", JSON.stringify(vc));
     navigation.navigate("Home");
@@ -56,7 +55,7 @@ export default ({ route, navigation }) => {
                 </Card>
               ))}
               <Text
-                onPress={() => deleteCredential()}
+                onPress={() => deleteCredential(credentialType, iss)}
                 style={[tailwind("text-center text-xs text-red-600 mt-8")]}
               >
                 Delete Credential
