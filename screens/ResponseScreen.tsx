@@ -87,23 +87,34 @@ export default ({ navigation }) => {
       );
       const original = await AsyncStorage.getItem("@vc");
       let parsed;
+      let vc;
       if (original) {
         parsed = JSON.parse(original);
-      }
-      const vc = {
-        ...parsed,
-        [requestState.presentation_definition.input_descriptors[0].schema
-          .uri[0]]: {
-          ...parsed[
-            requestState.presentation_definition.input_descriptors[0].schema
-              .uri[0]
-          ],
-          [manifestState.input.issuer]: {
-            vc: vcResponse.data.vc,
-            card: manifestState.display.card,
+        vc = {
+          ...parsed,
+          [requestState.presentation_definition.input_descriptors[0].schema
+            .uri[0]]: {
+            ...parsed[
+              requestState.presentation_definition.input_descriptors[0].schema
+                .uri[0]
+            ],
+            [manifestState.input.issuer]: {
+              vc: vcResponse.data.vc,
+              card: manifestState.display.card,
+            },
           },
-        },
-      };
+        };
+      } else {
+        vc = {
+          [requestState.presentation_definition.input_descriptors[0].schema
+            .uri[0]]: {
+            [manifestState.input.issuer]: {
+              vc: vcResponse.data.vc,
+              card: manifestState.display.card,
+            },
+          },
+        };
+      }
       await AsyncStorage.setItem("@vc", JSON.stringify(vc));
     } else if (modeState === "present") {
       const attestations = {
