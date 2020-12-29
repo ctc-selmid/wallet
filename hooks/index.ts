@@ -13,7 +13,7 @@ import axios from "axios";
 import { generatePrivateKey, jwt } from "../modules";
 
 export const appendCorsAnywhere = (os, url) => {
-  return os === "web" ? `https://cors-anywhere.herokuapp.com/${url}` : url;
+  return os === "web" ? `https://cors-proxy.azurewebsites.net/${url}` : url;
 };
 
 export const initializeApp = () => {
@@ -56,8 +56,8 @@ export const initializeApp = () => {
       if (decodedRequest.prompt === "create") {
         await AsyncStorage.setItem("@mode", "receive");
         const manifestUri =
-        decodedRequest.presentation_definition.input_descriptors[0].issuance[0]
-          .manifest;
+          decodedRequest.presentation_definition.input_descriptors[0]
+            .issuance[0].manifest;
         const manifestResponse = await axios.get(
           appendCorsAnywhere(Platform.OS, manifestUri)
         );
@@ -65,7 +65,7 @@ export const initializeApp = () => {
         await AsyncStorage.setItem("@manifest", JSON.stringify(manifest));
       } else {
         await AsyncStorage.setItem("@mode", "present");
-      } 
+      }
     }
     setScreenState("Response");
   };
@@ -144,20 +144,17 @@ export const initializeResponse = () => {
       setRequestState(request);
 
       const vcString = await AsyncStorage.getItem("@vc");
-      if (vcString && (presentationManifest || mode==="present")) {
-        let key 
-        if(mode==="present"){
-          key = request.presentation_definition.input_descriptors[0].schema.uri[0]
-        }
-        else if(mode==="receive"){
-          key = manifest.input.attestations.presentations[0].credentialType
+      if (vcString && (presentationManifest || mode === "present")) {
+        let key;
+        if (mode === "present") {
+          key =
+            request.presentation_definition.input_descriptors[0].schema.uri[0];
+        } else if (mode === "receive") {
+          key = manifest.input.attestations.presentations[0].credentialType;
         }
         const vc = JSON.parse(vcString);
-        setVcState(
-          vc[key]
-        );
+        setVcState(vc[key]);
       }
-
     })();
   }, []);
   return {
