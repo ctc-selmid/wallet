@@ -13,7 +13,8 @@ import axios from "axios";
 import { generatePrivateKey, jwt } from "../modules";
 
 export const appendCorsAnywhere = (os, url) => {
-  return os === "web" ? `https://calm-brook-96834.herokuapp.com/${url}` : url;
+  return os === "web" ? `${url}` : url;
+  //  return os === "web" ? `https://calm-brook-96834.herokuapp.com/${url}` : url;
 };
 
 export const initializeApp = () => {
