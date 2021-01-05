@@ -73,14 +73,12 @@ export const jwt = {
 
   //FIXME: 署名、検証周りがいろんなモジュールを使ったり使わなかったりして荒れているので方向性を揃えたい
   verify: async (jwt) => {
-    console.log(jwt);
     const splittedJwt = jwt.split(".");
     const header = JSON.parse(base64url.decode(splittedJwt[0]));
     const payload = JSON.parse(base64url.decode(splittedJwt[1]));
     const signature = base64url.decodeToBuffer(splittedJwt[2]);
 
     const message = `${splittedJwt[0]}.${splittedJwt[1]}`;
-    console.log(header);
     const did = header.kid;
 
     const didDocumentResponse = await axios.get(
