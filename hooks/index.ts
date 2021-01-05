@@ -52,7 +52,8 @@ export const initializeApp = () => {
       );
 
       const request = requestResponse.data;
-      const decodedRequest = jwt.decode(request);
+      const decodedRequest = await jwt.verify(request);
+
       await AsyncStorage.setItem("@request", JSON.stringify(decodedRequest));
       if (decodedRequest.prompt === "create") {
         await AsyncStorage.setItem("@mode", "receive");
