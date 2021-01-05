@@ -133,7 +133,8 @@ export default ({ navigation }) => {
       );
       const attestations = {
         presentations: {
-          "": vcResponse.data.vc,
+          [requestState.presentation_definition.input_descriptors[0].schema
+            .uri[0]]: vcResponse.data.vc,
         },
       };
       const payload = {
