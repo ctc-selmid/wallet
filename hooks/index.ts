@@ -10,7 +10,7 @@ import AsyncStorage from "@react-native-community/async-storage";
 
 import axios from "axios";
 
-import { generatePrivateKey, jwt } from "../modules";
+import { generatePrivateKey, jwt, generateHash } from "../modules";
 
 export const appendCorsAnywhere = (os, url) => {
   return os === "web" ? `${url}` : url;
@@ -116,8 +116,9 @@ export const initializeResponse = () => {
           manifest.input.attestations.idTokens[0].configuration
         );
         const openIdConfiguration = openIdConfigurationResponse.data;
+        const codeVerifier = await AsyncStorage.getItem("@code_verifier");
         const tokenResponse = await axios.get(
-          `${openIdConfiguration.token_endpoint}&grant_type=authorization_code&code=${queryParams.code}`
+          `${openIdConfiguration.token_endpoint}&grant_type=authorization_code&code=${queryParams.code}&code_verifier=${codeVerifier}`
         );
         const idToken = tokenResponse.data.id_token;
         setIdTokenState(idToken);
