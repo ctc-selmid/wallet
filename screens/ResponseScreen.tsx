@@ -12,7 +12,7 @@ import Layout from "../components/atoms/Layout";
 import Section from "../components/atoms/Section";
 import Credential from "../components/molecules/Credential";
 import { WalletContext } from "../contexts";
-import { initializeResponse, appendCorsAnywhere } from "../hooks";
+import { initializeResponse } from "../hooks";
 import { Wallet, jwt } from "../modules";
 const qs = require("querystring");
 
@@ -146,7 +146,7 @@ export default ({ navigation }) => {
 
       const selfIssuedIdToken = pairwise.siop(payload);
       await axios.post(
-        appendCorsAnywhere(Platform.OS, requestState.redirect_uri),
+        requestState.redirect_uri,
         qs.stringify({
           id_token: selfIssuedIdToken,
           state: requestState.state,
