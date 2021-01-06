@@ -1,5 +1,8 @@
 import crypto from "crypto";
+import axios from "axios";
+const EC = require("elliptic").ec;
 
+const ec = new EC("secp256k1");
 export const constants = {
   did: {
     methodName: "ion",
@@ -52,11 +55,57 @@ export const base64url = {
     }
     return Buffer.from(encoded, "base64").toString("utf8");
   },
+
+  decodeToBuffer: (encoded) => {
+    encoded = encoded.replace(/-/g, "+").replace(/_/g, "/");
+    while (encoded.length % 4) {
+      encoded += "=";
+    }
+    return Buffer.from(encoded, "base64");
+  },
 };
 
 export const jwt = {
   decode: (jwt) => {
     const payload = JSON.parse(base64url.decode(jwt.split(".")[1]));
+    return payload;
+  },
+
+  //FIXME: 署名、検証周りがいろんなモジュールを使ったり使わなかったりして荒れているので方向性を揃えたい
+  verify: async (jwt) => {
+    const splittedJwt = jwt.split(".");
+    const header = JSON.parse(base64url.decode(splittedJwt[0]));
+    const payload = JSON.parse(base64url.decode(splittedJwt[1]));
+    const signature = base64url.decodeToBuffer(splittedJwt[2]);
+
+    const message = `${splittedJwt[0]}.${splittedJwt[1]}`;
+    const did = header.kid;
+
+    const didDocumentResponse = await axios.get(
+      `https://beta.discover.did.microsoft.com/1.0/identifiers/${did}`
+    );
+
+    //FIXME: 複数public keyがある場合にループしてKIDを元に取得
+    const publicKeyJwk =
+      didDocumentResponse.data.didDocument.publicKey[0].publicKeyJwk;
+
+    const pub = {
+      x: base64url.decodeToBuffer(publicKeyJwk.x),
+      y: base64url.decodeToBuffer(publicKeyJwk.y),
+    };
+    const key = ec.keyFromPublic(pub);
+    const signatureInRS = {
+      r: signature.slice(0, 32),
+      s: signature.slice(32, 64),
+    };
+    const digest = crypto
+      .createHash(constants.hash.type)
+      .update(message)
+      .digest();
+    const verified = key.verify(digest, signatureInRS);
+    if (!verified) {
+      throw new Error("signature not verified");
+    }
     return payload;
   },
 };
