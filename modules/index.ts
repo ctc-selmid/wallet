@@ -161,8 +161,30 @@ export class Wallet {
       exp: constants.jwt.payload.exp,
       did: this.did,
       jti,
-      sub_jwk:this.publicKeyJwk,
+      sub_jwk: this.publicKeyJwk,
       ...options,
+    };
+    return this.sign(header, payload);
+  };
+
+  createExchangePayload = (vc, exchangeId, pairwiseDid) => {
+    const jti = generateJti();
+    const header = {
+      alg: constants.jwt.header.alg,
+      kid: `${this.did}#${constants.did.keyId}`,
+      typ: "JWT",
+    };
+
+    const payload = {
+      aud: exchangeId,
+      iss: "https://self-issued.me",
+      iat: constants.jwt.payload.iat,
+      exp: constants.jwt.payload.exp,
+      did: this.did,
+      jti,
+      sub_jwk: this.publicKeyJwk,
+      vc,
+      recipient: pairwiseDid,
     };
     return this.sign(header, payload);
   };

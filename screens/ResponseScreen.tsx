@@ -13,7 +13,7 @@ import Section from "../components/atoms/Section";
 import Credential from "../components/molecules/Credential";
 import { WalletContext } from "../contexts";
 import { initializeResponse, appendCorsAnywhere } from "../hooks";
-import { Wallet } from "../modules";
+import { Wallet, jwt } from "../modules";
 const qs = require("querystring");
 
 export default ({ navigation }) => {
@@ -117,10 +117,24 @@ export default ({ navigation }) => {
       }
       await AsyncStorage.setItem("@vc", JSON.stringify(vc));
     } else if (modeState === "present") {
+      const decoded = jwt.decode(selectedVc.vc);
+      const pairwise = new Wallet();
+      const exchangePayload = wallet.createExchangePayload(
+        selectedVc.vc,
+        decoded.vc.exchangeService.id,
+        pairwise.did
+      );
+      const vcResponse = await axios.post(
+        decoded.vc.exchangeService.id,
+        exchangePayload,
+        {
+          headers: { "Content-Type": "text/plain" },
+        }
+      );
       const attestations = {
         presentations: {
           [requestState.presentation_definition.input_descriptors[0].schema
-            .uri[0]]: selectedVc.vc,
+            .uri[0]]: vcResponse.data.vc,
         },
       };
       const payload = {
@@ -129,7 +143,8 @@ export default ({ navigation }) => {
         state: requestState.state,
         attestations,
       };
-      const selfIssuedIdToken = wallet.siop(payload);
+
+      const selfIssuedIdToken = pairwise.siop(payload);
       await axios.post(
         appendCorsAnywhere(Platform.OS, requestState.redirect_uri),
         qs.stringify({
