@@ -8,4 +8,4 @@
 
 #### Rule
 
-- Create a branch with the name `issue/${number}` and commit it.
+- Create a branch with the name `issues/${number}` and commit it.
