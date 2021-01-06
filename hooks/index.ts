@@ -5,7 +5,6 @@ import {
   NotoSansJP_700Bold,
 } from "@expo-google-fonts/noto-sans-jp";
 import * as React from "react";
-import { Platform } from "react-native";
 import AsyncStorage from "@react-native-community/async-storage";
 
 import axios from "axios";

@@ -2,7 +2,6 @@ import * as Linking from "expo-linking";
 import * as React from "react";
 import { Card, Divider, Button, Header, CheckBox } from "react-native-elements";
 import AsyncStorage from "@react-native-community/async-storage";
-import { Platform } from "react-native";
 
 import axios from "axios";
 import tailwind from "tailwind-rn";

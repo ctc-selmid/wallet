@@ -1,6 +1,6 @@
 import * as Linking from "expo-linking";
 import React from "react";
-import { Text, View, StyleSheet, Button, Platform } from "react-native";
+import { View, StyleSheet, Platform } from "react-native";
 import { Header } from "react-native-elements";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import QrReader from "react-qr-reader";
