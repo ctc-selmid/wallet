@@ -12,6 +12,13 @@
 
 - Delete unnecessary imports as you find them.
 
+#### Quick Start
+
+```
+yarn
+yarn start
+```
+
 ## エンドポイント
 
 - Holder（browser-wallet）
