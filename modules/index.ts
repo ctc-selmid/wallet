@@ -124,6 +124,10 @@ export const generatePrivateKey = () => {
   return crypto.randomBytes(32).toString("hex");
 };
 
+export const generateState = () => {
+  return crypto.randomBytes(4).toString("hex");
+};
+
 export const privateKeyToPem = (privateKey) => {
   const asn1 = `${constants.asn1.pre}${privateKey}${constants.asn1.post}`;
   const asn1Base64 = Buffer.from(asn1, "hex").toString("base64");
