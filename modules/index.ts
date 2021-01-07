@@ -126,6 +126,9 @@ export const generatePrivateKey = () => {
 
 export const generateHash = (type: string, data: string) => {
   return base64url.encode(crypto.createHash(type).update(data).digest());
+
+export const generateState = () => {
+  return crypto.randomBytes(4).toString("hex");
 };
 
 export const privateKeyToPem = (privateKey) => {
