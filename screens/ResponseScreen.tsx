@@ -2,7 +2,6 @@ import * as Linking from "expo-linking";
 import * as React from "react";
 import { Card, Divider, Button, Header, CheckBox } from "react-native-elements";
 import AsyncStorage from "@react-native-community/async-storage";
-import { Platform } from "react-native";
 
 import axios from "axios";
 import tailwind from "tailwind-rn";
@@ -12,7 +11,7 @@ import Layout from "../components/atoms/Layout";
 import Section from "../components/atoms/Section";
 import Credential from "../components/molecules/Credential";
 import { WalletContext } from "../contexts";
-import { initializeResponse, appendCorsAnywhere } from "../hooks";
+import { initializeResponse } from "../hooks";
 import { Wallet, jwt } from "../modules";
 const qs = require("querystring");
 
@@ -146,7 +145,7 @@ export default ({ navigation }) => {
 
       const selfIssuedIdToken = pairwise.siop(payload);
       await axios.post(
-        appendCorsAnywhere(Platform.OS, requestState.redirect_uri),
+        requestState.redirect_uri,
         qs.stringify({
           id_token: selfIssuedIdToken,
           state: requestState.state,
