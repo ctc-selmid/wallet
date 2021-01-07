@@ -5,17 +5,11 @@ import {
   NotoSansJP_700Bold,
 } from "@expo-google-fonts/noto-sans-jp";
 import * as React from "react";
-import { Platform } from "react-native";
 import AsyncStorage from "@react-native-community/async-storage";
 
 import axios from "axios";
 
 import { generatePrivateKey, jwt } from "../modules";
-
-export const appendCorsAnywhere = (os, url) => {
-  return os === "web" ? `${url}` : url;
-  // return os === "web" ? `https://calm-brook-96834.herokuapp.com/${url}` : url;
-};
 
 export const initializeApp = () => {
   const [privateKeyState, setPrivateKeyState] = React.useState("");
@@ -47,9 +41,7 @@ export const initializeApp = () => {
     }
 
     if (queryParams.request_uri) {
-      const requestResponse = await axios.get(
-        appendCorsAnywhere(Platform.OS, queryParams.request_uri)
-      );
+      const requestResponse = await axios.get(queryParams.request_uri);
 
       const request = requestResponse.data;
       const decodedRequest = await jwt.verify(request);
@@ -60,9 +52,7 @@ export const initializeApp = () => {
         const manifestUri =
           decodedRequest.presentation_definition.input_descriptors[0]
             .issuance[0].manifest;
-        const manifestResponse = await axios.get(
-          appendCorsAnywhere(Platform.OS, manifestUri)
-        );
+        const manifestResponse = await axios.get(manifestUri);
         const manifest = manifestResponse.data;
         await AsyncStorage.setItem("@manifest", JSON.stringify(manifest));
       } else {
