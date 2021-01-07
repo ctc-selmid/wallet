@@ -110,8 +110,9 @@ export const initializeResponse = () => {
           manifest.input.attestations.idTokens[0].configuration
         );
         const openIdConfiguration = openIdConfigurationResponse.data;
+        const codeVerifier = await AsyncStorage.getItem("@code_verifier");
         const tokenResponse = await axios.get(
-          `${openIdConfiguration.token_endpoint}&grant_type=authorization_code&code=${queryParams.code}`
+          `${openIdConfiguration.token_endpoint}&grant_type=authorization_code&code=${queryParams.code}&code_verifier=${codeVerifier}`
         );
         const idToken = tokenResponse.data.id_token;
         setIdTokenState(idToken);

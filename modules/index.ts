@@ -124,8 +124,16 @@ export const generatePrivateKey = () => {
   return crypto.randomBytes(32).toString("hex");
 };
 
+export const generateHash = (type: string, data: string) => {
+  return base64url.encode(crypto.createHash(type).update(data).digest());
+};
+
 export const generateState = () => {
   return crypto.randomBytes(4).toString("hex");
+};
+
+export const generateVerifier = () => {
+  return crypto.randomBytes(44).toString("hex");
 };
 
 export const privateKeyToPem = (privateKey) => {
