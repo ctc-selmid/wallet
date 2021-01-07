@@ -9,7 +9,7 @@ import AsyncStorage from "@react-native-community/async-storage";
 
 import axios from "axios";
 
-import { generatePrivateKey, jwt, generateHash } from "../modules";
+import { generatePrivateKey, jwt } from "../modules";
 
 export const initializeApp = () => {
   const [privateKeyState, setPrivateKeyState] = React.useState("");

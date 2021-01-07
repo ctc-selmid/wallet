@@ -12,7 +12,13 @@ import Section from "../components/atoms/Section";
 import Credential from "../components/molecules/Credential";
 import { WalletContext } from "../contexts";
 import { initializeResponse } from "../hooks";
-import { Wallet, jwt, generateState, generateHash } from "../modules";
+import {
+  Wallet,
+  jwt,
+  generateState,
+  generateHash,
+  generateVerifier,
+} from "../modules";
 
 const qs = require("querystring");
 
@@ -164,16 +170,13 @@ export default ({ navigation }) => {
     const openIdConfigurationResponse = await axios.get(openIdConfigurationUri);
     const openIdConfiguration = openIdConfigurationResponse.data;
     // const redirect_uri = "https://browser-wallet.azurewebsites.net/";
-    // TODO: codeVerifierは43CharactersLongのRambomValueする。
-    const codeVerifier = "ThisIsntRandomButItNeedsToBe43CharactersLong";
-    await AsyncStorage.setItem("@code_verifier", codeVerifier);
-    const codeChallenge = generateHash("sha256", codeVerifier);
-    const redirect_uri = `https://wallet.selmid.me/`;
-    const authorizationUri = `${openIdConfiguration.authorization_endpoint}&redirect_uri=${redirect_uri}&client_id=${client_id}&response_type=code&scope=openid&code_challenge=${codeChallenge}&code_challenge_method=S256`;
     const ranbomState = generateState();
+    const codeVerifier = generateVerifier();
+    const codeChallenge = generateHash("sha256", codeVerifier);
     await AsyncStorage.setItem("@state", ranbomState);
+    await AsyncStorage.setItem("@code_verifier", codeVerifier);
     const redirect_uri = `https://wallet.selmid.me/`;
-    const authorizationUri = `${openIdConfiguration.authorization_endpoint}&redirect_uri=${redirect_uri}&client_id=${client_id}&response_type=code&scope=openid&state=${ranbomState}`;
+    const authorizationUri = `${openIdConfiguration.authorization_endpoint}&redirect_uri=${redirect_uri}&client_id=${client_id}&response_type=code&scope=openid&state=${ranbomState}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
     Linking.openURL(authorizationUri);
   };
 
