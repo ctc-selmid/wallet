@@ -102,6 +102,10 @@ export const initializeResponse = () => {
       setManifestState(manifest);
 
       if (queryParams.code) {
+        const state = await AsyncStorage.getItem("@state");
+        if (queryParams.state !== state) {
+          return;
+        }
         const openIdConfigurationResponse = await axios.get(
           manifest.input.attestations.idTokens[0].configuration
         );
