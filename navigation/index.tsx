@@ -7,6 +7,8 @@ import HomeScreen from "../screens/HomeScreen";
 import ResponseScreen from "../screens/ResponseScreen";
 import CredentialScreen from "../screens/CredentialScreen";
 import ScannerScreen from "../screens/ScannerScreen";
+import SigninScreen from "../screens/SigninScreen";
+import SettingScreen from "../screens/SettingScreen";
 
 const Stack = createStackNavigator();
 
@@ -24,6 +26,8 @@ export default () => {
         <Stack.Screen name="Response" component={ResponseScreen} />
         <Stack.Screen name="Credential" component={CredentialScreen} />
         <Stack.Screen name="Scanner" component={ScannerScreen} />
+        <Stack.Screen name="Signin" component={SigninScreen} />
+        <Stack.Screen name="Setting" component={SettingScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -9,7 +9,7 @@ import AsyncStorage from "@react-native-community/async-storage";
 
 import axios from "axios";
 
-import { generatePrivateKey, jwt } from "../modules";
+import { jwt } from "../modules";
 
 export const initializeApp = () => {
   const [privateKeyState, setPrivateKeyState] = React.useState("");
@@ -23,13 +23,16 @@ export const initializeApp = () => {
   const loadPrivateKeyAsync = async () => {
     let privateKey = await AsyncStorage.getItem("@private_key");
     if (!privateKey) {
-      privateKey = generatePrivateKey();
-      AsyncStorage.setItem("@private_key", privateKey);
+      setScreenState("Signin");
+      return;
     }
     setPrivateKeyState(privateKey);
   };
 
   const loadScreenAsync = async () => {
+    if (!privateKeyState) {
+      return;
+    }
     const initialUrl = await Linking.getInitialURL();
     if (!initialUrl) {
       return;
@@ -64,8 +67,11 @@ export const initializeApp = () => {
 
   React.useEffect(() => {
     loadPrivateKeyAsync();
-    loadScreenAsync();
   }, []);
+
+  React.useEffect(() => {
+    loadScreenAsync();
+  }, [privateKeyState]);
 
   return { isFontsLoaded, privateKeyState, screenState };
 };
