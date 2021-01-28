@@ -13,8 +13,7 @@ import Navigation from "./navigation";
 
 export default () => {
   const { isFontsLoaded, privateKeyState, screenState } = initializeApp();
-
-  const isLoadingComplete = isFontsLoaded && privateKeyState && screenState;
+  const isLoadingComplete = isFontsLoaded && screenState;
   if (!isLoadingComplete) {
     return <AppLoading />;
   } else {

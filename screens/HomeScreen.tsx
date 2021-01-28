@@ -56,13 +56,17 @@ export default ({ navigation }) => {
     });
   };
 
-  const scnanner = () => {
-    navigation.navigate("Scanner");
-  };
-
   const home = () => {
     window.location.href = window.location.href.split(/[?#]/)[0];
     navigation.navigate("Home");
+  };
+
+  const scnanner = () => {
+    navigation.navigate("Scnanner");
+  };
+
+  const setting = () => {
+    navigation.navigate("Setting");
   };
 
   return (
@@ -72,6 +76,11 @@ export default ({ navigation }) => {
           text: "Credentials",
           style: { color: "#fff" },
           onPress: home,
+        }}
+        leftComponent={{
+          icon: "menu",
+          color: "#fff",
+          onPress: setting,
         }}
         rightComponent={{
           icon: "camera",
