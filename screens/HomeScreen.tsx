@@ -10,8 +10,12 @@ import Section from "../components/atoms/Section";
 import Credential from "../components/molecules/Credential";
 import { initializeHome } from "../hooks";
 
+import { jwt, Wallet } from "../modules";
+import { WalletContext } from "../contexts";
+
 export default ({ navigation }) => {
   const { vcState } = initializeHome();
+  const wallet = React.useContext(WalletContext) as Wallet;
 
   const Credentials = () => {
     if (!vcState) {
@@ -21,27 +25,30 @@ export default ({ navigation }) => {
         (credentialType, credentialIndex) => {
           const issuer = vcState[credentialType];
           return Object.keys(issuer).map((iss, index) => {
-            const { card } = issuer[iss];
-            return (
-              <View key={iss}>
-                {(credentialIndex > 0 || index > 0) && (
-                  <Divider style={tailwind("mx-2 my-4")} />
-                )}
-                <Credential
-                  title={card.title}
-                  icon={card.logo.uri}
-                  issuedBy={card.issuedBy}
-                  textColor={card.textColor}
-                  backgroundColor={card.backgroundColor}
-                />
-                <Text
-                  onPress={() => detail(credentialType, iss)}
-                  style={[tailwind("text-center text-xs text-blue-600 mt-4")]}
-                >
-                  View detail
-                </Text>
-              </View>
-            );
+            const { card, vc } = issuer[iss];
+            const decoded = jwt.decode(vc);
+            const subject = decoded.sub;
+            if (subject === wallet.did)
+              return (
+                <View key={iss}>
+                  {(credentialIndex > 0 || index > 0) && (
+                    <Divider style={tailwind("mx-2 my-4")} />
+                  )}
+                  <Credential
+                    title={card.title}
+                    icon={card.logo.uri}
+                    issuedBy={card.issuedBy}
+                    textColor={card.textColor}
+                    backgroundColor={card.backgroundColor}
+                  />
+                  <Text
+                    onPress={() => detail(credentialType, iss)}
+                    style={[tailwind("text-center text-xs text-blue-600 mt-4")]}
+                  >
+                    View detail
+                  </Text>
+                </View>
+              );
           });
         }
       );
@@ -61,8 +68,8 @@ export default ({ navigation }) => {
     navigation.navigate("Home");
   };
 
-  const scnanner = () => {
-    navigation.navigate("Scnanner");
+  const scanner = () => {
+    navigation.navigate("Scanner");
   };
 
   const setting = () => {
@@ -85,7 +92,7 @@ export default ({ navigation }) => {
         rightComponent={{
           icon: "camera",
           color: "#fff",
-          onPress: scnanner,
+          onPress: scanner,
         }}
       />
       <Container>
