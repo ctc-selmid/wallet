@@ -87,7 +87,7 @@ export const jwt = {
 
     //FIXME: 複数public keyがある場合にループしてKIDを元に取得
     const publicKeyJwk =
-      didDocumentResponse.data.didDocument.publicKey[0].publicKeyJwk;
+      didDocumentResponse.data.didDocument.verificationMethod[0].publicKeyJwk;
 
     const pub = {
       x: base64url.decodeToBuffer(publicKeyJwk.x),
