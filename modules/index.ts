@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import axios from "axios";
 const EC = require("elliptic").ec;
+const canonicalize = require("canonicalize");
 
 const ec = new EC("secp256k1");
 export const constants = {
@@ -116,6 +117,11 @@ export const multihash = (data) => {
   return Buffer.concat([prefix, digest]);
 };
 
+export const hashAsNonMultihashBuffer = (data) => {
+  const hash = crypto.createHash("sha256").update(data).digest();
+  return hash;
+};
+
 export const generateJti = () => {
   return crypto.randomBytes(16).toString("hex");
 };
@@ -161,39 +167,70 @@ export const privateKeyToJwk = (privateKey) => {
   return { publicKeyJwk, privateKeyJwk };
 };
 
+export class JsonCanonicalizer {
+  /**
+   * Canonicalizes the given content as a UTF8 buffer.
+   */
+  public static canonicalizeAsBuffer(content: object): Buffer {
+    const canonicalizedString: string = canonicalize(content);
+    const contentBuffer = Buffer.from(canonicalizedString);
+    return contentBuffer;
+  }
+}
+
 export const publicKeyJwkToIonDid = (publicKeyJwk) => {
   const id = constants.did.keyId;
-  const canonical_jwk = JSON.stringify(publicKeyJwk);
-  const commitment_hash = base64url.encode(multihash(canonical_jwk));
+  const contentBuffer = JsonCanonicalizer.canonicalizeAsBuffer(publicKeyJwk);
+  const intermediateHashBuffer = hashAsNonMultihashBuffer(contentBuffer);
+  const multihashBuffer = multihash(intermediateHashBuffer);
+  const commitment_hash = base64url.encode(multihashBuffer);
+
   const patches = [
     {
       action: "replace",
       document: {
-        public_keys: [
+        publicKeys: [
           {
             id,
             type: constants.did.publicKeyType,
-            jwk: publicKeyJwk,
-            purpose: ["auth", "general"],
+            publicKeyJwk: publicKeyJwk,
+            purposes: ["authentication", "assertionMethod"],
           },
         ],
       },
     },
   ];
-  const canonical_delta = JSON.stringify({
-    update_commitment: commitment_hash,
+  const delta = {
+    updateCommitment: commitment_hash,
+    patches,
+  };
+  const canonical_delta = JsonCanonicalizer.canonicalizeAsBuffer({
+    updateCommitment: commitment_hash,
     patches,
   });
-  const delta = base64url.encode(canonical_delta);
-  const delta_hash = base64url.encode(multihash(canonical_delta));
-  const canonical_suffix_data = JSON.stringify({
-    delta_hash,
-    recovery_commitment: commitment_hash,
-  });
-  const didUniqueSuffix = base64url.encode(multihash(canonical_suffix_data));
-  const suffix_data = base64url.encode(canonical_suffix_data);
+  const deltaHash = base64url.encode(multihash(canonical_delta));
+
+  const suffixData = {
+    deltaHash,
+    recoveryCommitment: commitment_hash,
+  };
+  const canonicalizedStringBuffer = JsonCanonicalizer.canonicalizeAsBuffer(
+    suffixData
+  );
+  const multihashed = multihash(canonicalizedStringBuffer);
+  const didUniqueSuffix = base64url.encode(multihashed);
   const shortFormDid = `did:${constants.did.methodName}:${didUniqueSuffix}`;
-  const longFormDid = `${shortFormDid}?-${constants.did.methodName}-initial-state=${suffix_data}.${delta}`;
+  const initialState = {
+    suffixData,
+    delta,
+  };
+  const canonicalizedInitialStateBuffer = JsonCanonicalizer.canonicalizeAsBuffer(
+    initialState
+  );
+  const encodedCanonicalizedInitialStateString = base64url.encode(
+    canonicalizedInitialStateBuffer
+  );
+  const longFormDid = `${shortFormDid}:${encodedCanonicalizedInitialStateString}`;
   return longFormDid;
 };
 
