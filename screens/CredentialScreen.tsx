@@ -1,5 +1,7 @@
 import * as React from "react";
+import { Linking } from "react-native";
 import { Text, Card, Divider, Header } from "react-native-elements";
+import Hyperlink from "react-native-hyperlink";
 import tailwind from "tailwind-rn";
 import Container from "../components/atoms/Container";
 import Layout from "../components/atoms/Layout";
@@ -49,9 +51,15 @@ export default ({ route, navigation }) => {
               <Divider />
               {Object.keys(subject).map((key) => (
                 <Card key={key}>
-                  <Text
-                    style={[tailwind("text-xm p-2")]}
-                  >{`${key}: ${subject[key]}`}</Text>
+                  <Hyperlink
+                    linkDefault={true}
+                    linkStyle={{ color: "#2980b9" }}
+                    onPress={async (url) => await Linking.openURL(url)}
+                  >
+                    <Text
+                      style={[tailwind("text-xm p-2")]}
+                    >{`${key}: ${subject[key]}`}</Text>
+                  </Hyperlink>
                 </Card>
               ))}
               <Text
