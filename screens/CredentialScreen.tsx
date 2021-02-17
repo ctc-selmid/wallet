@@ -54,19 +54,13 @@ export default ({ route, navigation }) => {
                 const imageUrl = getIamgeUrlInText(subject[key]);
                 return (
                   <Card key={key}>
-                    <Linkify>
-                      <Text
-                        style={[tailwind("text-sm")]}
-                      >{`${key}: ${subject[key]}`}</Text>
-                    </Linkify>
+                    <Text style={[tailwind("text-sm")]}>
+                      <Linkify>{`${key}: ${subject[key]}`}</Linkify>
+                    </Text>
                     {imageUrl && (
                       <Image
                         source={{ uri: imageUrl }}
-                        style={[
-                          tailwind(
-                            "object-contain max-w-56 w-screen h-56 mt-3"
-                          ),
-                        ]}
+                        style={[tailwind("w-full h-56 mt-3")]}
                       />
                     )}
                   </Card>

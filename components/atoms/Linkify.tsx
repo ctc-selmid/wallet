@@ -1,19 +1,17 @@
 import React from "react";
 import { Linking } from "react-native";
-import Hyperlink from "react-native-hyperlink";
+import Autolink from "react-native-autolink";
 
 type Props = {
   children: React.ReactNode;
 };
 
 export default ({ children }: Props) => {
+  if (!children) return null;
   return (
-    <Hyperlink
-      linkDefault={true}
-      linkStyle={{ color: "#2980b9" }}
+    <Autolink
+      text={children.toString()}
       onPress={async (url) => await Linking.openURL(url)}
-    >
-      {children}
-    </Hyperlink>
+    />
   );
 };
