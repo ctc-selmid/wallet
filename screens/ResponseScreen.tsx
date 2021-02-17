@@ -217,24 +217,27 @@ export default ({ navigation }) => {
         <Card.Title>Credentials Required</Card.Title>
         <Card.Divider />
         {Object.keys(vcState).map((key, index) => {
-          const { card } = vcState[key];
-          return (
-            <Section key={key}>
-              <Credential
-                title={card.title}
-                icon={card.logo.uri}
-                issuedBy={card.issuedBy}
-                textColor={card.textColor}
-                backgroundColor={card.backgroundColor}
-                size="40"
-              />
-              <CheckBox
-                title="Click Here"
-                checked={selectedVc === vcState[key]}
-                onPress={() => setselectedVc(vcState[key])}
-              />
-            </Section>
-          );
+          const { card, vc } = vcState[key];
+          const decoded = jwt.decode(vc);
+          const subject = decoded.sub;
+          if (subject === wallet.did)
+            return (
+              <Section key={key}>
+                <Credential
+                  title={card.title}
+                  icon={card.logo.uri}
+                  issuedBy={card.issuedBy}
+                  textColor={card.textColor}
+                  backgroundColor={card.backgroundColor}
+                  size="40"
+                />
+                <CheckBox
+                  title="Click Here"
+                  checked={selectedVc === vcState[key]}
+                  onPress={() => setselectedVc(vcState[key])}
+                />
+              </Section>
+            );
         })}
       </Card>
     );
