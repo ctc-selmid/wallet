@@ -50,11 +50,11 @@ export default ({ route, navigation }) => {
               <Divider />
               {Object.keys(subject).map((key) => (
                 <Card key={key}>
-                  <Linkify>
-                    <Text
-                      style={[tailwind("text-xm p-2")]}
-                    >{`${key}: ${subject[key]}`}</Text>
-                  </Linkify>
+                  <Text style={[tailwind("text-xm p-2")]}>
+                    <Linkify imageWidth={30} imageHeight={30}>
+                      {`${key}: ${subject[key]}`}
+                    </Linkify>
+                  </Text>
                 </Card>
               ))}
               <Text
