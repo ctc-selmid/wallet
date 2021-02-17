@@ -8,12 +8,13 @@ const formats = [".png", ".jpeg", ".jpg"];
 export const getIamgeUrlInText = (text: string): string | undefined => {
   const matchedUrl = text.match(/(\w+):\/\/([\w.]+)\/(\S*)/);
   if (!matchedUrl) return undefined;
-  const matchedIamgeUrl = formats.filter((format) => {
+  const url = matchedUrl[0];
+  const matchedFormats = formats.filter((format) => {
     const reg = new RegExp(format);
-    return matchedUrl[0].match(reg);
+    return url.match(reg);
   });
-  if (!matchedIamgeUrl.length) return undefined;
-  return matchedUrl[0];
+  if (!matchedFormats.length) return undefined;
+  return url;
 };
 
 export const constants = {
