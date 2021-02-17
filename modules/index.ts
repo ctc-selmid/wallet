@@ -2,8 +2,20 @@ import crypto from "crypto";
 import axios from "axios";
 const EC = require("elliptic").ec;
 const canonicalize = require("canonicalize");
-
 const ec = new EC("secp256k1");
+
+const formats = [".png", ".jpeg", ".jpg"];
+export const getIamgeUrlInText = (text: string): string | undefined => {
+  const matchedUrl = text.match(/(\w+):\/\/([\w.]+)\/(\S*)/);
+  if (!matchedUrl) return undefined;
+  const matchedIamgeUrl = formats.filter((format) => {
+    const reg = new RegExp(format);
+    return matchedUrl[0].match(reg);
+  });
+  if (!matchedIamgeUrl.length) return undefined;
+  return matchedUrl[0];
+};
+
 export const constants = {
   did: {
     methodName: "ion",
