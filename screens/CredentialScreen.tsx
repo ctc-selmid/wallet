@@ -1,10 +1,9 @@
 import * as React from "react";
-import { Linking } from "react-native";
 import { Text, Card, Divider, Header } from "react-native-elements";
-import Hyperlink from "react-native-hyperlink";
 import tailwind from "tailwind-rn";
 import Container from "../components/atoms/Container";
 import Layout from "../components/atoms/Layout";
+import Linkify from "../components/atoms/Linkify";
 import Section from "../components/atoms/Section";
 import Credential from "../components/molecules/Credential";
 import AsyncStorage from "@react-native-community/async-storage";
@@ -51,15 +50,11 @@ export default ({ route, navigation }) => {
               <Divider />
               {Object.keys(subject).map((key) => (
                 <Card key={key}>
-                  <Hyperlink
-                    linkDefault={true}
-                    linkStyle={{ color: "#2980b9" }}
-                    onPress={async (url) => await Linking.openURL(url)}
-                  >
+                  <Linkify>
                     <Text
                       style={[tailwind("text-xm p-2")]}
                     >{`${key}: ${subject[key]}`}</Text>
-                  </Hyperlink>
+                  </Linkify>
                 </Card>
               ))}
               <Text
