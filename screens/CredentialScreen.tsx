@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Image } from "react-native";
 import { Text, Card, Divider, Header } from "react-native-elements";
 import tailwind from "tailwind-rn";
 import Container from "../components/atoms/Container";
@@ -9,7 +10,7 @@ import Credential from "../components/molecules/Credential";
 import AsyncStorage from "@react-native-community/async-storage";
 
 import { initializeHome } from "../hooks";
-import { jwt } from "../modules";
+import { jwt, getIamgeUrlInText } from "../modules";
 
 export default ({ route, navigation }) => {
   const { vcState } = initializeHome();
@@ -34,6 +35,7 @@ export default ({ route, navigation }) => {
       const cardOne = vcState[credentialType][iss];
       const decoded = jwt.decode(cardOne.vc);
       const subject = decoded.vc.credentialSubject;
+
       return (
         <>
           {cardOne && (
@@ -48,15 +50,28 @@ export default ({ route, navigation }) => {
                 />
               </Section>
               <Divider />
-              {Object.keys(subject).map((key) => (
-                <Card key={key}>
-                  <Text style={[tailwind("text-xm p-2")]}>
-                    <Linkify imageWidth={30} imageHeight={30}>
-                      {`${key}: ${subject[key]}`}
+              {Object.keys(subject).map((key) => {
+                const imageUrl = getIamgeUrlInText(subject[key]);
+                return (
+                  <Card key={key}>
+                    <Linkify>
+                      <Text
+                        style={[tailwind("text-sm")]}
+                      >{`${key}: ${subject[key]}`}</Text>
                     </Linkify>
-                  </Text>
-                </Card>
-              ))}
+                    {imageUrl && (
+                      <Image
+                        source={{ uri: imageUrl }}
+                        style={[
+                          tailwind(
+                            "object-contain max-w-56 w-screen h-56 mt-3"
+                          ),
+                        ]}
+                      />
+                    )}
+                  </Card>
+                );
+              })}
               <Text
                 onPress={() => deleteCredential(credentialType, iss)}
                 style={[tailwind("text-center text-xs text-red-600 mt-8")]}
