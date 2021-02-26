@@ -6,9 +6,11 @@ const ec = new EC("secp256k1");
 
 const formats = [".png", ".jpeg", ".jpg"];
 export const getIamgeUrlInText = (text: string): string | undefined => {
-  const matchedUrl = text.match(/(\w+):\/\/([\w.]+)\/(\S*)/);
+  const urlExpression = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
+  const urlRegex = new RegExp(urlExpression);
+  const matchedUrl = text.match(urlRegex);
   if (!matchedUrl) return undefined;
-  const url = matchedUrl[0];
+  const url = text;
   const matchedFormats = formats.filter((format) => {
     const reg = new RegExp(format);
     return url.match(reg);
