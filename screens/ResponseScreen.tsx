@@ -1,6 +1,14 @@
 import * as Linking from "expo-linking";
 import * as React from "react";
-import { Card, Divider, Button, Header, CheckBox } from "react-native-elements";
+import { Image, View } from "react-native";
+import {
+  Card,
+  Divider,
+  Button,
+  Header,
+  CheckBox,
+  Text,
+} from "react-native-elements";
 import AsyncStorage from "@react-native-community/async-storage";
 
 import axios from "axios";
@@ -19,6 +27,7 @@ import {
   generateHash,
   generateVerifier,
 } from "../modules";
+import Linkify from "../components/atoms/Linkify";
 
 const qs = require("querystring");
 
@@ -213,33 +222,49 @@ export default ({ navigation }) => {
 
   const CredentialsToBeSubmitted = () => {
     return (
-      <Card>
-        <Card.Title>Credentials Required</Card.Title>
-        <Card.Divider />
-        {Object.keys(vcState).map((key, index) => {
-          const { card, vc } = vcState[key];
-          const decoded = jwt.decode(vc);
-          const subject = decoded.sub;
-          if (subject === wallet.did)
-            return (
-              <Section key={key}>
-                <Credential
-                  title={card.title}
-                  icon={card.logo.uri}
-                  issuedBy={card.issuedBy}
-                  textColor={card.textColor}
-                  backgroundColor={card.backgroundColor}
-                  size="40"
-                />
-                <CheckBox
-                  title="Click Here"
-                  checked={selectedVc === vcState[key]}
-                  onPress={() => setselectedVc(vcState[key])}
-                />
-              </Section>
-            );
-        })}
-      </Card>
+      <>
+        <Card>
+          <Card.Title>Credentials Requested From</Card.Title>
+          <Card.Divider />
+          <Image
+            style={tailwind("left-0 top-4 m-2 w-10 h-10 rounded-full")}
+            source={{ uri: requestState.registration.logo_uri }}
+          ></Image>
+          <Text style={tailwind("top-0 right-0 m-2")}>
+            {requestState.registration.client_name}
+          </Text>
+          <Text style={[tailwind("text-sm m-2")]}>
+            <Linkify>{`Terms of Service: ${requestState.registration.tos_uri}`}</Linkify>
+          </Text>
+        </Card>
+        <Card>
+          <Card.Title>Credentials Required</Card.Title>
+          <Card.Divider />
+          {Object.keys(vcState).map((key, index) => {
+            const { card, vc } = vcState[key];
+            const decoded = jwt.decode(vc);
+            const subject = decoded.sub;
+            if (subject === wallet.did)
+              return (
+                <Section key={key}>
+                  <Credential
+                    title={card.title}
+                    icon={card.logo.uri}
+                    issuedBy={card.issuedBy}
+                    textColor={card.textColor}
+                    backgroundColor={card.backgroundColor}
+                    size="40"
+                  />
+                  <CheckBox
+                    title="Click Here"
+                    checked={selectedVc === vcState[key]}
+                    onPress={() => setselectedVc(vcState[key])}
+                  />
+                </Section>
+              );
+          })}
+        </Card>
+      </>
     );
   };
 
