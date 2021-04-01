@@ -6,6 +6,7 @@ import Layout from "../components/atoms/Layout";
 import AsyncStorage from "@react-native-community/async-storage";
 
 import { generatePrivateKey } from "../modules";
+import { Linking } from "expo";
 
 export default ({ navigation }) => {
   const [key, setKey] = React.useState("");
@@ -14,7 +15,9 @@ export default ({ navigation }) => {
   const home = () => {
     navigation.navigate("Home");
   };
-
+  const response = () => {
+    navigation.navigate("Response");
+  };
   const handleChangeKey = (value: string) => {
     if (value && value.length !== 64) {
       setError(true);
@@ -23,11 +26,20 @@ export default ({ navigation }) => {
     }
     setKey(value);
   };
-
-  const createKey = () => {
+  const createKey = async () => {
     const privateKey = generatePrivateKey();
-    AsyncStorage.setItem("@private_key", privateKey);
-    home();
+    await AsyncStorage.setItem("@private_key", privateKey);
+    const initialUrl = await Linking.getInitialURL();
+    if (!initialUrl) {
+      home();
+      return;
+    }
+    const { queryParams } = Linking.parse(initialUrl);
+    if (!queryParams || Object.keys(queryParams).length === 0) {
+      home();
+      return;
+    }
+    response();
   };
 
   const recoveryKey = () => {
