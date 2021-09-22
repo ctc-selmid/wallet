@@ -113,12 +113,12 @@ export const initializeResponse = () => {
           return;
         }
         const openIdConfigurationResponse = await axios.get(
-          manifest.input.attestations.idTokens[0].configuration
+          manifest.input.attestations.idTokens[0].configuration,
         );
         const openIdConfiguration = openIdConfigurationResponse.data;
         const codeVerifier = await AsyncStorage.getItem("@code_verifier");
         const tokenResponse = await axios.get(
-          `${openIdConfiguration.token_endpoint}&grant_type=authorization_code&code=${queryParams.code}&code_verifier=${codeVerifier}`
+          `${openIdConfiguration.token_endpoint}&grant_type=authorization_code&code=${queryParams.code}&code_verifier=${codeVerifier}`,
         );
         const idToken = tokenResponse.data.id_token;
         setIdTokenState(idToken);
@@ -127,7 +127,7 @@ export const initializeResponse = () => {
       let presentationManifest;
       if (manifest.input.attestations.presentations) {
         const presentationManifestResponse = await axios.get(
-          manifest.input.attestations.presentations[0].contracts[0]
+          manifest.input.attestations.presentations[0].contracts[0],
         );
         presentationManifest = presentationManifestResponse.data;
         setPresentaionManifestState(presentationManifest);
