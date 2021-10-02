@@ -38,8 +38,8 @@
     "expo-status-bar": "~1.0.2",
     "expo-web-browser": "~8.5.0",
     "querystring": "^0.2.0",
-    "react": "16.13.1",
-    "react-dom": "16.13.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
     "react-native": "https://github.com/expo/react-native/archive/sdk-39.0.3.tar.gz",
     "react-native-autolink": "^3.0.0",
     "react-native-elements": "^2.3.2",
@@ -50,10 +50,11 @@
     "react-native-web": "^0.17.5",
     "react-qr-reader": "^2.2.1",
     "readable-stream": "^3.6.0",
-    "tailwind-rn": "^2.0.0"
+    "tailwind-rn": "^2.0.0",
+    "unimodules-permissions-interface": "^6.1.0"
   },
   "devDependencies": {
-    "@babel/core": "~7.9.0",
+    "@babel/core": "^7.9.6",
     "@types/elliptic": "^6.4.12",
     "@types/jest": "^26.0.14",
     "@types/jsonwebtoken": "^8.5.0",
