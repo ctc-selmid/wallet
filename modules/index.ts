@@ -6,7 +6,8 @@ const ec = new EC("secp256k1");
 
 const formats = [".png", ".jpeg", ".jpg"];
 export const getIamgeUrlInText = (text: string): string | undefined => {
-  const urlExpression = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
+  const urlExpression =
+    /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
   const urlRegex = new RegExp(urlExpression);
   const matchedUrl = text.match(urlRegex);
   if (!matchedUrl) return undefined;
@@ -37,7 +38,7 @@ export const constants = {
   },
   jwk: {
     kty: "EC",
-    crv: "P-256K",
+    crv: "secp256k1",
   },
   ecdh: {
     crv: "secp256k1",
@@ -170,8 +171,8 @@ export const privateKeyToJwk = (privateKey) => {
   ecdh.setPrivateKey(privateKeyBuffer);
   const pub = ecdh.getPublicKey();
   const publicKeyJwk = {
-    kty: constants.jwk.kty,
     crv: constants.jwk.crv,
+    kty: constants.jwk.kty,
     x: base64url.encode(pub.slice(1, 32 + 1)),
     y: base64url.encode(pub.slice(32 + 1)),
   };
@@ -229,9 +230,8 @@ export const publicKeyJwkToIonDid = (publicKeyJwk) => {
     deltaHash,
     recoveryCommitment: commitment_hash,
   };
-  const canonicalizedStringBuffer = JsonCanonicalizer.canonicalizeAsBuffer(
-    suffixData
-  );
+  const canonicalizedStringBuffer =
+    JsonCanonicalizer.canonicalizeAsBuffer(suffixData);
   const multihashed = multihash(canonicalizedStringBuffer);
   const didUniqueSuffix = base64url.encode(multihashed);
   const shortFormDid = `did:${constants.did.methodName}:${didUniqueSuffix}`;
@@ -239,9 +239,8 @@ export const publicKeyJwkToIonDid = (publicKeyJwk) => {
     suffixData,
     delta,
   };
-  const canonicalizedInitialStateBuffer = JsonCanonicalizer.canonicalizeAsBuffer(
-    initialState
-  );
+  const canonicalizedInitialStateBuffer =
+    JsonCanonicalizer.canonicalizeAsBuffer(initialState);
   const encodedCanonicalizedInitialStateString = base64url.encode(
     canonicalizedInitialStateBuffer
   );
@@ -268,12 +267,18 @@ export class Wallet {
       alg: constants.jwt.header.alg,
       kid: `${this.did}#${constants.did.keyId}`,
     };
+    const digest = crypto
+      .createHash("sha256")
+      .update(JSON.stringify(this.publicKeyJwk))
+      .digest();
+    const sub = base64url.encode(digest);
     const payload = {
       iss: constants.jwt.payload.iss,
       iat: constants.jwt.payload.iat,
       exp: constants.jwt.payload.exp,
       did: this.did,
       jti,
+      sub,
       sub_jwk: this.publicKeyJwk,
       ...options,
     };
