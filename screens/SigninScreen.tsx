@@ -6,7 +6,8 @@ import Layout from "../components/atoms/Layout";
 import AsyncStorage from "@react-native-community/async-storage";
 
 import { generatePrivateKey } from "../modules";
-import { Linking } from "expo";
+//import Linking from "expo-linking";
+import * as Linking from "expo-linking";
 
 export default ({ navigation }) => {
   const [key, setKey] = React.useState("");
