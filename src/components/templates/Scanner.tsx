@@ -2,17 +2,17 @@ import React from "react";
 
 import { Body } from "../atoms/Body";
 import { Container } from "../atoms/Container";
-import { Home } from "../organisms/Home";
+import { Scanner } from "../organisms/Scanner";
 import { Header } from "../organisms/Header";
 
-export interface HomeTemplateProps {}
+export interface ScannerTemplateProps {}
 
-export const HomeTemplate: React.FC<HomeTemplateProps> = () => {
+export const ScannerTemplate: React.FC<ScannerTemplateProps> = () => {
   return (
     <Body>
-      <Header />
       <Container>
-        <Home />
+        <Header />
+        <Scanner />
       </Container>
     </Body>
   );
