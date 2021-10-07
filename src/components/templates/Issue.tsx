@@ -5,7 +5,7 @@ import { Container } from "../atoms/Container";
 import { Issue } from "../organisms/Issue";
 import { Header } from "../organisms/Header";
 
-import { AcquiredAttestation, Manifest } from "../../lib/types";
+import { AcquiredAttestation, Manifest } from "../../types";
 
 export interface IssueTemplateProps {
   manifest: Manifest;

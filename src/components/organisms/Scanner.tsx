@@ -11,7 +11,7 @@ import {
 import { setCookie } from "nookies";
 
 import { useRouter } from "next/router";
-import { COOKIE_VC_REQUEST_KEY } from "../../lib/constants";
+import { COOKIE_VC_REQUEST_KEY } from "../../configs/constants";
 
 const QrReader = dynamic(() => import("react-qr-reader"), { ssr: false }) as any;
 

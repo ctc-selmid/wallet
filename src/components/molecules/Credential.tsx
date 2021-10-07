@@ -1,5 +1,5 @@
 import React from "react";
-import { Card } from "../../lib/types";
+import { Card } from "../../types";
 
 import { Box, Text } from "@chakra-ui/react";
 

@@ -5,9 +5,11 @@ import { Box, Button } from "@chakra-ui/react";
 import { setCookie } from "nookies";
 import { Credential } from "../molecules/Credential";
 
-import { Manifest, IdTokenConfiguration, RequiredToken, AcquiredAttestation } from "../../lib/types";
-import { generateCodeVerifier, generateHash, generateState, proxyHttpRequest } from "../../lib/utils";
-import { COOKIE_ID_TOKEN_CODE_VERIFIER, COOKIE_ID_TOKEN_KEY, COOKIE_ID_TOKEN_STATE } from "../../lib/constants";
+import { Manifest, IdTokenConfiguration, RequiredToken, AcquiredAttestation } from "../../types";
+import { generateCodeVerifier, sha256, generateOpenIdConnectState, proxyHttpRequest } from "../../lib/kms";
+import { proxyHttpRequest } from "../../lib/http";
+import { COOKIE_ID_TOKEN_CODE_VERIFIER, COOKIE_ID_TOKEN_KEY, COOKIE_ID_TOKEN_STATE } from "../../configs/constants";
+import { useLocalStoragePrivateKey } from "../../hooks/useLocalStorageWallet";
 
 export interface IssueProps {
   manifest: Manifest;
@@ -16,13 +18,14 @@ export interface IssueProps {
 
 export const Issue: React.FC<IssueProps> = ({ manifest, acquiredAttestation }) => {
   const router = useRouter();
+  const { privateKey } = useLocalStoragePrivateKey();
 
   const getIdToken = async (RequiredToken: RequiredToken) => {
     console.log(RequiredToken);
     const idTokenConfigulation = await proxyHttpRequest<IdTokenConfiguration>("get", RequiredToken.configuration);
     const state = generateState();
     const codeVerifier = generateCodeVerifier();
-    const codeChallenge = generateHash("sha256", codeVerifier);
+    const codeChallenge = sha256(codeVerifier);
     setCookie(null, COOKIE_ID_TOKEN_STATE, state);
     setCookie(null, COOKIE_ID_TOKEN_CODE_VERIFIER, codeVerifier);
     setCookie(null, COOKIE_ID_TOKEN_KEY, RequiredToken.id);

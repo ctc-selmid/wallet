@@ -2,9 +2,9 @@ import React from "react";
 import axios from "axios";
 import { parseCookies } from "nookies";
 import { IssueTemplate } from "../components/templates/Issue";
-import { COOKIE_VC_REQUEST_KEY, COOKIE_ID_TOKEN_STATE, COOKIE_ID_TOKEN_KEY } from "../lib/constants";
+import { COOKIE_VC_REQUEST_KEY, COOKIE_ID_TOKEN_STATE, COOKIE_ID_TOKEN_KEY } from "../configs/constants";
 
-import { Manifest, AcquiredAttestation } from "../lib/types";
+import { Manifest, AcquiredAttestation } from "../types";
 
 interface IssuePageProps {
   manifest: Manifest;
