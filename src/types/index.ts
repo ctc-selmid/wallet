@@ -46,6 +46,7 @@ export interface RequiredAttestation {
 export interface Manifest {
   display: {
     card: Card;
+    contract: string;
   };
   input: {
     attestations: RequiredAttestation;

@@ -1,7 +1,7 @@
 import React from "react";
 
-import { LocalStoragePrivateKeyContext } from "../components/utils/LocalStoragePrivateKey/LocalStoragePrivateKeyContext";
+import { KeyPairContext, KeyPairContextProps } from "../components/utils/KeyPair/KeyPairContext";
 
-export const useLocalStoragePrivateKey = (): { isReady: boolean; privateKey?: string } => {
-  return React.useContext(LocalStoragePrivateKeyContext);
+export const useKeyPair = (): KeyPairContextProps => {
+  return React.useContext(KeyPairContext);
 };

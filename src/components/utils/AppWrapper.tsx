@@ -1,7 +1,7 @@
 import React from "react";
 
 import { ChakraProvider } from "@chakra-ui/react";
-import { LocalStoragePrivateKeyProvider } from "./LocalStoragePrivateKey/LocalStoragePrivateKeyProvider";
+import { KeyPairProvider } from "./KeyPair/KeyPairProvider";
 
 export interface AppWrapperProps {
   children: React.ReactNode;
@@ -10,7 +10,7 @@ export interface AppWrapperProps {
 export const AppWrapper: React.FC<AppWrapperProps> = ({ children }) => {
   return (
     <ChakraProvider>
-      <LocalStoragePrivateKeyProvider>{children}</LocalStoragePrivateKeyProvider>
+      <KeyPairProvider>{children}</KeyPairProvider>
     </ChakraProvider>
   );
 };

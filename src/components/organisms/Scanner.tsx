@@ -18,17 +18,22 @@ const QrReader = dynamic(() => import("react-qr-reader"), { ssr: false }) as any
 export interface ScannerProps {}
 
 export const Scanner: React.FC<ScannerProps> = () => {
+  const [isProcessing, setIsProcessing] = React.useState(false);
+
   const router = useRouter();
 
   const handleQrReaderScanned = async (message) => {
-    if (!message) {
+    if (!message || isProcessing) {
       return;
     }
+    setIsProcessing(true);
     const requestUrl = getRequestUrlFromQRCodeMessage(message);
     const vcRequestInJwt = await proxyHttpRequest<string>("get", requestUrl);
     validateVCRequest(vcRequestInJwt);
+
     const { vcRequestType, vcRequest } = await getRequestFromVCRequest(vcRequestInJwt);
     setCookie(null, COOKIE_VC_REQUEST_KEY, JSON.stringify(vcRequest));
+
     router.push(`/${vcRequestType}`);
   };
 

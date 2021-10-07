@@ -7,7 +7,7 @@ export interface HeaderProps {}
 export const Header: React.FC<HeaderProps> = () => {
   return (
     <Box>
-      <Link href="/handle-request" as={NextLink}>
+      <Link href="/scanner" as={NextLink}>
         Scan
       </Link>
     </Box>

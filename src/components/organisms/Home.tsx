@@ -2,18 +2,33 @@ import React from "react";
 import Web3 from "web3";
 import { Box } from "@chakra-ui/react";
 
+import ION from "@decentralized-identity/ion-tools";
+
 export interface HomeProps {}
 
 export const Home: React.FC<HomeProps> = () => {
-  const click = async () => {
-    const a = window as any;
-    await a.ethereum.enable();
-    const web3 = new Web3(a.ethereum);
-    const [account] = await web3.eth.getAccounts();
-    await web3.eth.sign("ok", account);
-    console.log(await web3.eth.getAccounts());
-    console.log("click");
+  const getVC = async () => {
+    console.log("get vc");
+    let did = new ION.KeyPair({
+      content: {
+        publicKeys: [
+          {
+            id: "key-1",
+            type: "EcdsaSecp256k1VerificationKey2019",
+            publicKeyJwk: authnKeys.publicJwk,
+            purposes: ["authentication"],
+          },
+        ],
+        services: [
+          {
+            id: "domain-1",
+            type: "LinkedDomains",
+            serviceEndpoint: "https://foo.example.com",
+          },
+        ],
+      },
+    });
   };
 
-  return <Box onClick={click}>Home</Box>;
+  return <Box>Home</Box>;
 };

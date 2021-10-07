@@ -6,5 +6,6 @@ export const COOKIE_VC_REQUEST_KEY = "vc-request";
 export const COOKIE_ID_TOKEN_STATE = "state";
 export const COOKIE_ID_TOKEN_CODE_VERIFIER = "code-verifier";
 export const COOKIE_ID_TOKEN_KEY = "id-token-key";
-export const LOCAL_STORAGE_PRIVATE_KEY = "private-key";
+export const LOCAL_STORAGE_KEY_PAIR = "key-pair";
 export const LOCAL_STORAGE_VC = "vc";
+export const DID_ION_KEY_ID = "signingKey";

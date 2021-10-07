@@ -6,10 +6,25 @@ import { setCookie } from "nookies";
 import { Credential } from "../molecules/Credential";
 
 import { Manifest, IdTokenConfiguration, RequiredToken, AcquiredAttestation } from "../../types";
-import { generateCodeVerifier, sha256, generateOpenIdConnectState, proxyHttpRequest } from "../../lib/kms";
+
+// import {
+//   generateCodeVerifier,
+//   sha256,
+//   generateOpenIdConnectState,
+//   proxyHttpRequest,
+// } from "../../lib/repository/keyPair";
+
+import ION from "@decentralized-identity/ion-tools";
+
+import { sha256 } from "../../lib/hash";
+
+import { generateState, generateCodeVerifier } from "../../lib/open-id-connect";
+import { getCreateDidParam, generateSiopHeader, generateSiopPayload } from "../../lib/utils";
+
 import { proxyHttpRequest } from "../../lib/http";
 import { COOKIE_ID_TOKEN_CODE_VERIFIER, COOKIE_ID_TOKEN_KEY, COOKIE_ID_TOKEN_STATE } from "../../configs/constants";
-import { useLocalStoragePrivateKey } from "../../hooks/useLocalStorageWallet";
+import { useKeyPair } from "../../hooks/useLocalStorageWallet";
+import axios from "axios";
 
 export interface IssueProps {
   manifest: Manifest;
@@ -18,7 +33,7 @@ export interface IssueProps {
 
 export const Issue: React.FC<IssueProps> = ({ manifest, acquiredAttestation }) => {
   const router = useRouter();
-  const { privateKey } = useLocalStoragePrivateKey();
+  const { keyPair } = useKeyPair();
 
   const getIdToken = async (RequiredToken: RequiredToken) => {
     console.log(RequiredToken);
@@ -34,7 +49,27 @@ export const Issue: React.FC<IssueProps> = ({ manifest, acquiredAttestation }) =
   };
 
   const getVC = async () => {
-    console.log("get vc");
+    const { publicJwk } = keyPair;
+    const did = new ION.DID(getCreateDidParam(publicJwk));
+    const longFormDid = await did.getURI();
+
+    const payload = {
+      aud: manifest.input.credentialIssuer,
+      contract: manifest.display.contract,
+      attestations: acquiredAttestation,
+    };
+
+    const jws = await ION.signJws({
+      payload: await generateSiopPayload({ payload, longFormDid, publicJwk }),
+      header: generateSiopHeader(longFormDid),
+      privateJwk: keyPair.privateJwk,
+    });
+
+    console.log(jws);
+    await axios.post(manifest.input.credentialIssuer, jws, {
+      headers: { "Content-Type": "text/plain" },
+    });
+    // await proxyHttpRequest("post", manifest.input.credentialIssuer, jws);
   };
 
   return (
