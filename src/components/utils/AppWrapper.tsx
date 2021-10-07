@@ -1,7 +1,7 @@
+import { ChakraProvider } from "@chakra-ui/react";
 import React from "react";
 
-import { ChakraProvider } from "@chakra-ui/react";
-import { KeyPairProvider } from "./KeyPair/KeyPairProvider";
+import { SignerProvider } from "./Signer/SignerProvider";
 
 export interface AppWrapperProps {
   children: React.ReactNode;
@@ -10,7 +10,7 @@ export interface AppWrapperProps {
 export const AppWrapper: React.FC<AppWrapperProps> = ({ children }) => {
   return (
     <ChakraProvider>
-      <KeyPairProvider>{children}</KeyPairProvider>
+      <SignerProvider>{children}</SignerProvider>
     </ChakraProvider>
   );
 };

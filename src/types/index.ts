@@ -1,17 +1,3 @@
-export interface PresentationDefinition {
-  input_descriptors: {
-    issuance: {
-      manifest: string;
-    }[];
-  }[];
-}
-
-export interface VCRequest {
-  prompt?: string;
-  redirect_uri?: string;
-  presentation_definition: PresentationDefinition;
-}
-
 export interface Card {
   title: string;
   issuedBy: string;

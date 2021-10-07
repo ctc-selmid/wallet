@@ -1,7 +1,7 @@
-import React from "react";
-import { Card } from "../../types";
-
 import { Box, Text } from "@chakra-ui/react";
+import React from "react";
+
+import { Card } from "../../types";
 
 export interface CredentialProps {
   card: Card;

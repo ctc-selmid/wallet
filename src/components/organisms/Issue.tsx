@@ -1,30 +1,17 @@
-import React from "react";
-import { useRouter } from "next/router";
 import { Box, Button } from "@chakra-ui/react";
-
-import { setCookie } from "nookies";
-import { Credential } from "../molecules/Credential";
-
-import { Manifest, IdTokenConfiguration, RequiredToken, AcquiredAttestation } from "../../types";
-
-// import {
-//   generateCodeVerifier,
-//   sha256,
-//   generateOpenIdConnectState,
-//   proxyHttpRequest,
-// } from "../../lib/repository/keyPair";
-
-import ION from "@decentralized-identity/ion-tools";
-
-import { sha256 } from "../../lib/hash";
-
-import { generateState, generateCodeVerifier } from "../../lib/open-id-connect";
-import { getCreateDidParam, generateSiopHeader, generateSiopPayload } from "../../lib/utils";
-
-import { proxyHttpRequest } from "../../lib/http";
-import { COOKIE_ID_TOKEN_CODE_VERIFIER, COOKIE_ID_TOKEN_KEY, COOKIE_ID_TOKEN_STATE } from "../../configs/constants";
-import { useKeyPair } from "../../hooks/useLocalStorageWallet";
 import axios from "axios";
+import jsonwebtoken from "jsonwebtoken";
+import { useRouter } from "next/router";
+import { destroyCookie } from "nookies";
+import React from "react";
+
+import { COOKIE_VC_REQUEST_KEY } from "../../configs/constants";
+import { useSigner } from "../../hooks/useSigner";
+import { proxyHttpRequest } from "../../lib/http";
+import { authorize } from "../../lib/oidc";
+import { getVC, saveVC } from "../../lib/repository/vc";
+import { AcquiredAttestation, IdTokenConfiguration, Manifest, RequiredToken } from "../../types";
+import { Credential } from "../molecules/Credential";
 
 export interface IssueProps {
   manifest: Manifest;
@@ -33,43 +20,32 @@ export interface IssueProps {
 
 export const Issue: React.FC<IssueProps> = ({ manifest, acquiredAttestation }) => {
   const router = useRouter();
-  const { keyPair } = useKeyPair();
+  const { signer } = useSigner();
 
   const getIdToken = async (RequiredToken: RequiredToken) => {
-    console.log(RequiredToken);
     const idTokenConfigulation = await proxyHttpRequest<IdTokenConfiguration>("get", RequiredToken.configuration);
-    const state = generateState();
-    const codeVerifier = generateCodeVerifier();
-    const codeChallenge = sha256(codeVerifier);
-    setCookie(null, COOKIE_ID_TOKEN_STATE, state);
-    setCookie(null, COOKIE_ID_TOKEN_CODE_VERIFIER, codeVerifier);
-    setCookie(null, COOKIE_ID_TOKEN_KEY, RequiredToken.id);
-    const authorizationUri = `${idTokenConfigulation.authorization_endpoint}?redirect_uri=${RequiredToken.redirect_uri}&client_id=${RequiredToken.client_id}&response_type=code&scope=openid&state=${state}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
-    router.push(authorizationUri);
+    authorize({
+      key: RequiredToken.id,
+      authorizationEndpoint: idTokenConfigulation.authorization_endpoint,
+      clientId: RequiredToken.client_id,
+      redirectUri: RequiredToken.redirect_uri,
+    });
   };
 
-  const getVC = async () => {
-    const { publicJwk } = keyPair;
-    const did = new ION.DID(getCreateDidParam(publicJwk));
-    const longFormDid = await did.getURI();
-
-    const payload = {
+  const issueVC = async () => {
+    const issueRequestIdToken = await signer.siop({
       aud: manifest.input.credentialIssuer,
       contract: manifest.display.contract,
       attestations: acquiredAttestation,
-    };
-
-    const jws = await ION.signJws({
-      payload: await generateSiopPayload({ payload, longFormDid, publicJwk }),
-      header: generateSiopHeader(longFormDid),
-      privateJwk: keyPair.privateJwk,
     });
-
-    console.log(jws);
-    await axios.post(manifest.input.credentialIssuer, jws, {
+    const issueResponse = await axios.post(manifest.input.credentialIssuer, issueRequestIdToken, {
       headers: { "Content-Type": "text/plain" },
     });
-    // await proxyHttpRequest("post", manifest.input.credentialIssuer, jws);
+    const { data } = issueResponse;
+    const { vc } = data as unknown as { vc: string };
+    saveVC(manifest.display.contract, vc);
+    destroyCookie(null, COOKIE_VC_REQUEST_KEY);
+    router.push("/");
   };
 
   return (
@@ -86,7 +62,7 @@ export const Issue: React.FC<IssueProps> = ({ manifest, acquiredAttestation }) =
       })}
       <Button
         disabled={Object.keys(acquiredAttestation).length < manifest.input.attestations.idTokens.length}
-        onClick={getVC}
+        onClick={issueVC}
       >
         Submit
       </Button>

@@ -1,11 +1,10 @@
 import React from "react";
 
+import { AcquiredAttestation, Manifest } from "../../types";
 import { Body } from "../atoms/Body";
 import { Container } from "../atoms/Container";
-import { Issue } from "../organisms/Issue";
 import { Header } from "../organisms/Header";
-
-import { AcquiredAttestation, Manifest } from "../../types";
+import { Issue } from "../organisms/Issue";
 
 export interface IssueTemplateProps {
   manifest: Manifest;

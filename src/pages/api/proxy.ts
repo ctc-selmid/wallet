@@ -1,4 +1,5 @@
 import axios from "axios";
+
 import { PROXY_TARGET_KEY } from "../../configs/constants";
 
 const proxyApi = async (req, res) => {
