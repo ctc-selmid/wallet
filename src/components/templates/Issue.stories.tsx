@@ -1,6 +1,6 @@
 import { Meta, Story } from "@storybook/react/types-6-0";
 
-import { acquiredAttestation, manifest, vcIssueRequest } from "../../fixtures";
+import { acquiredIdToken, manifest, vcIssueRequest } from "../../fixtures";
 import { IssueTemplate as Component, IssueTemplateProps as Props } from "./Issue";
 
 export default {
@@ -14,11 +14,12 @@ export const IssueBeforeAuthorization = Template.bind({});
 IssueBeforeAuthorization.args = {
   vcRequest: vcIssueRequest,
   manifest,
+  acquiredAttestation: {},
 };
 
 export const IssueAfterAuthorization = Template.bind({});
 IssueAfterAuthorization.args = {
   vcRequest: vcIssueRequest,
   manifest,
-  acquiredAttestation,
+  acquiredAttestation: acquiredIdToken,
 };

@@ -1,3 +1,4 @@
+import { Box } from "@chakra-ui/react";
 import React from "react";
 
 import { Card } from "../../types";
@@ -15,7 +16,9 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ cards }) => {
     <Body>
       <Header />
       <Container>
-        <CredentialList cards={cards} />
+        <Box px="4">
+          <CredentialList cards={cards} />
+        </Box>
       </Container>
     </Body>
   );

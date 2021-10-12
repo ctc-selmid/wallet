@@ -24,10 +24,6 @@ export interface AcquiredIdToken {
   [id: string]: string;
 }
 
-export interface AcquiredAttestation {
-  idTokens: AcquiredIdToken;
-}
-
 export interface Manifest {
   display: {
     card: Card;

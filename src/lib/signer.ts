@@ -27,16 +27,23 @@ export class Signer {
   init = async (keyPair: KeyPair): Promise<void> => {
     this.keyPair = keyPair;
     const did = new ION.DID({
-      content: {
-        publicKeys: [
-          {
-            id: DID_ION_KEY_ID,
-            type: "EcdsaSecp256k1VerificationKey2019",
-            publicKeyJwk: keyPair.publicJwk,
-            purposes: ["authentication"],
+      ops: [
+        {
+          operation: "create",
+          content: {
+            publicKeys: [
+              {
+                id: DID_ION_KEY_ID,
+                type: "EcdsaSecp256k1VerificationKey2019",
+                publicKeyJwk: keyPair.publicJwk,
+                purposes: ["authentication"],
+              },
+            ],
           },
-        ],
-      },
+          recovery: keyPair,
+          update: keyPair,
+        },
+      ],
     });
     this.did = await did.getURI();
   };

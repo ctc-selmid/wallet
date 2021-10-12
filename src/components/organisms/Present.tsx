@@ -3,6 +3,7 @@ import ION from "@decentralized-identity/ion-tools";
 import axios from "axios";
 import jsonwebtoken from "jsonwebtoken";
 import NextLink from "next/link";
+import { useRouter } from "next/router";
 import qs from "querystring";
 import React from "react";
 
@@ -19,9 +20,10 @@ export interface PresentProps {
 
 export const Present: React.FC<PresentProps> = ({ manifest, vcRequest }) => {
   const { signer } = useSigner();
+  const router = useRouter();
 
   const presentVC = async () => {
-    const vc = getVC(manifest.display.contract);
+    const { jwt: vc } = getVC(manifest.display.contract);
 
     const decoded = jsonwebtoken.decode(vc) as any;
 
@@ -34,8 +36,9 @@ export const Present: React.FC<PresentProps> = ({ manifest, vcRequest }) => {
       aud: exchangeService,
       contract: manifest.display.contract,
       recipient: pairWiseDidSigner.did,
-      vc: vc,
+      vc,
     });
+
     const exchangeResponse = await axios.post(exchangeService, exchangeRequestIdToken, {
       headers: { "Content-Type": "text/plain" },
     });
@@ -54,16 +57,21 @@ export const Present: React.FC<PresentProps> = ({ manifest, vcRequest }) => {
       attestations,
     });
 
-    await axios.post(
-      vcRequest.redirect_uri,
-      qs.stringify({
-        id_token: verifyRequestIdToken,
-        state: vcRequest.state,
-      }),
-      {
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      }
-    );
+    try {
+      await axios.post(
+        vcRequest.redirect_uri,
+        qs.stringify({
+          id_token: verifyRequestIdToken,
+          state: vcRequest.state,
+        }),
+        {
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        }
+      );
+    } catch (err) {
+      console.log(err.message);
+    }
+    router.push("/");
   };
 
   return (

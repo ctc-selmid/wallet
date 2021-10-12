@@ -1,10 +1,20 @@
 import { LOCAL_STORAGE_VC } from "../../configs/constants";
+import { Manifest } from "../../types";
 
-export const getVC = (key: string): string => {
+export interface VC {
+  jwt: string;
+  manifest: Manifest;
+}
+
+export const getVCs = (): VC => {
+  return JSON.parse(localStorage.getItem(LOCAL_STORAGE_VC));
+};
+
+export const getVC = (key: string): VC => {
   return JSON.parse(localStorage.getItem(LOCAL_STORAGE_VC))[key];
 };
 
-export const saveVC = (key: string, vc: string): void => {
+export const saveVC = (key: string, vc: VC): void => {
   localStorage.setItem(
     LOCAL_STORAGE_VC,
     JSON.stringify({

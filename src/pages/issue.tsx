@@ -6,12 +6,12 @@ import React from "react";
 import { IssueTemplate } from "../components/templates/Issue";
 import { COOKIE_VC_REQUEST_KEY } from "../configs/constants";
 import { getAndRefreshAuthorizationContext } from "../lib/oidc";
-import { AcquiredAttestation, Manifest, VCRequest } from "../types";
+import { AcquiredIdToken, Manifest, VCRequest } from "../types";
 
 interface IssuePageProps {
   vcRequest: VCRequest;
   manifest: Manifest;
-  acquiredAttestation: AcquiredAttestation;
+  acquiredAttestation: AcquiredIdToken;
 }
 
 const IssuePage: React.FC<IssuePageProps> = ({ vcRequest, manifest, acquiredAttestation }) => {

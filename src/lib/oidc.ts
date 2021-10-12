@@ -27,8 +27,8 @@ export const authorize = (config: RedirectConfig): void => {
 export const getAndRefreshAuthorizationContext = (ctx: GetServerSidePropsContext): AuthorizationContext => {
   const idTokenKey = parseCookies(ctx)[COOKIE_ID_TOKEN_KEY];
   const idTokenState = parseCookies(ctx)[COOKIE_ID_TOKEN_STATE];
-  destroyCookie(ctx, COOKIE_ID_TOKEN_KEY);
-  destroyCookie(ctx, COOKIE_ID_TOKEN_STATE);
+  // destroyCookie(ctx, COOKIE_ID_TOKEN_KEY);
+  // destroyCookie(ctx, COOKIE_ID_TOKEN_STATE);
   return {
     idTokenKey,
     idTokenState,

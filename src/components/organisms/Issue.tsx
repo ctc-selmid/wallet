@@ -1,7 +1,6 @@
 import { Box, Button, Flex, Grid, Icon, Link, Text } from "@chakra-ui/react";
 import { BadgeCheckIcon, ChevronRightIcon } from "@heroicons/react/outline";
 import axios from "axios";
-import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { destroyCookie } from "nookies";
 import React from "react";
@@ -11,13 +10,13 @@ import { useSigner } from "../../hooks/useSigner";
 import { proxyHttpRequest } from "../../lib/http";
 import { authorize } from "../../lib/oidc";
 import { saveVC } from "../../lib/repository/vc";
-import { AcquiredAttestation, IdTokenConfiguration, Manifest, RequiredToken, VCRequest } from "../../types";
+import { AcquiredIdToken, IdTokenConfiguration, Manifest, RequiredToken, VCRequest } from "../../types";
 import { CredentialCard } from "../molecules/CredentialCard";
 
 export interface IssueProps {
   vcRequest: VCRequest;
   manifest: Manifest;
-  acquiredAttestation?: AcquiredAttestation;
+  acquiredAttestation: AcquiredIdToken;
 }
 
 export const Issue: React.FC<IssueProps> = ({ vcRequest, manifest, acquiredAttestation }) => {
@@ -26,6 +25,7 @@ export const Issue: React.FC<IssueProps> = ({ vcRequest, manifest, acquiredAttes
 
   const getIdToken = async (RequiredToken: RequiredToken) => {
     const idTokenConfigulation = await proxyHttpRequest<IdTokenConfiguration>("get", RequiredToken.configuration);
+
     authorize({
       key: RequiredToken.configuration,
       authorizationEndpoint: idTokenConfigulation.authorization_endpoint,
@@ -40,13 +40,15 @@ export const Issue: React.FC<IssueProps> = ({ vcRequest, manifest, acquiredAttes
       contract: manifest.display.contract,
       attestations: acquiredAttestation,
     });
+
     const issueResponse = await axios.post(manifest.input.credentialIssuer, issueRequestIdToken, {
       headers: { "Content-Type": "text/plain" },
     });
     const { data } = issueResponse;
     const { vc } = data as unknown as { vc: string };
-    saveVC(vcRequest.presentation_definition.input_descriptors[0].issuance[0].manifest, vc);
-    destroyCookie(null, COOKIE_VC_REQUEST_KEY);
+
+    saveVC(vcRequest.presentation_definition.input_descriptors[0].issuance[0].manifest, { jwt: vc, manifest });
+    // destroyCookie(null, COOKIE_VC_REQUEST_KEY);
     router.push("/");
   };
 
@@ -57,16 +59,16 @@ export const Issue: React.FC<IssueProps> = ({ vcRequest, manifest, acquiredAttes
           Add a credential
         </Text>
       </Box>
-      <Box px="2" mb="8">
+      <Box px="4" mb="8">
         <CredentialCard card={manifest.display.card} />
       </Box>
       <Box mb="8">
         {manifest.input.attestations.idTokens.map((idToken, i) => {
           const { host } = new URL(idToken.configuration);
-          const fulfilled = acquiredAttestation && acquiredAttestation.idTokens[idToken.configuration] !== "undefined";
+          const fulfilled = acquiredAttestation && acquiredAttestation[idToken.configuration] !== undefined;
           const bg = fulfilled ? "gray.50" : "blue.50";
-          const cursor = !fulfilled && "pointer";
-          const onclick = fulfilled && (() => getIdToken(idToken));
+          const cursor = fulfilled ? undefined : "pointer";
+          const onclick = fulfilled ? undefined : () => getIdToken(idToken);
 
           return (
             <Flex
@@ -91,18 +93,13 @@ export const Issue: React.FC<IssueProps> = ({ vcRequest, manifest, acquiredAttes
           );
         })}
       </Box>
-      <Box px="2">
+      <Box px="4">
         <Grid templateColumns="repeat(2, 1fr)" gap="4">
-          <Link as={NextLink} href="/">
-            <>
-              <Button>Cancel</Button>
-            </>
+          <Link href="/">
+            <Button w="100%">Cancel</Button>
           </Link>
           <Button
-            disabled={
-              !acquiredAttestation ||
-              Object.keys(acquiredAttestation).length < manifest.input.attestations.idTokens.length
-            }
+            disabled={Object.keys(acquiredAttestation).length < manifest.input.attestations.idTokens.length}
             onClick={issueVC}
             colorScheme="blue"
           >
