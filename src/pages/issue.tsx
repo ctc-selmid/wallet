@@ -6,15 +6,16 @@ import React from "react";
 import { IssueTemplate } from "../components/templates/Issue";
 import { COOKIE_VC_REQUEST_KEY } from "../configs/constants";
 import { getAndRefreshAuthorizationContext } from "../lib/oidc";
-import { AcquiredAttestation, Manifest } from "../types";
+import { AcquiredAttestation, Manifest, VCRequest } from "../types";
 
 interface IssuePageProps {
+  vcRequest: VCRequest;
   manifest: Manifest;
   acquiredAttestation: AcquiredAttestation;
 }
 
-const IssuePage: React.FC<IssuePageProps> = ({ manifest, acquiredAttestation }) => {
-  return <IssueTemplate manifest={manifest} acquiredAttestation={acquiredAttestation} />;
+const IssuePage: React.FC<IssuePageProps> = ({ vcRequest, manifest, acquiredAttestation }) => {
+  return <IssueTemplate vcRequest={vcRequest} manifest={manifest} acquiredAttestation={acquiredAttestation} />;
 };
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
@@ -46,6 +47,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const { data: manifest } = manifestResponse;
   return {
     props: {
+      vcRequest,
       manifest,
       acquiredAttestation: acquiredAttestation,
     },

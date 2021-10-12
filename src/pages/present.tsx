@@ -5,12 +5,11 @@ import React from "react";
 
 import { PresentTemplate } from "../components/templates/Present";
 import { COOKIE_VC_REQUEST_KEY } from "../configs/constants";
-import { VCRequest } from "../lib/utils";
-import { Manifest } from "../types";
+import { Manifest, VCRequest } from "../types";
 
 interface PresentPageProps {
-  manifest: Manifest;
   vcRequest: VCRequest;
+  manifest: Manifest;
 }
 
 const PresentPage: React.FC<PresentPageProps> = ({ manifest, vcRequest }) => {
@@ -34,8 +33,8 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const { data: manifest } = manifestResponse;
   return {
     props: {
-      manifest,
       vcRequest,
+      manifest,
     },
   };
 };

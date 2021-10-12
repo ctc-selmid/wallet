@@ -6,7 +6,7 @@ import { HomeTemplate } from "../components/templates/Home";
 interface IndexPageProps {}
 
 const IndexPage: React.FC<IndexPageProps> = () => {
-  return <HomeTemplate />;
+  return <HomeTemplate cards={[]} />;
 };
 
 export default IndexPage;
