@@ -10,16 +10,7 @@ export interface Card {
   description: string;
 }
 
-export interface AcquiredAttestation {
-  idTokens: AcquiredIdTokens;
-}
-
-export interface AcquiredIdTokens {
-  [id: string]: string;
-}
-
 export interface RequiredToken {
-  id: string;
   configuration: string;
   client_id: string;
   redirect_uri: string;
@@ -27,6 +18,14 @@ export interface RequiredToken {
 
 export interface RequiredAttestation {
   idTokens: RequiredToken[];
+}
+
+export interface AcquiredIdToken {
+  [id: string]: string;
+}
+
+export interface AcquiredAttestation {
+  idTokens: AcquiredIdToken;
 }
 
 export interface Manifest {
@@ -43,4 +42,20 @@ export interface Manifest {
 export interface IdTokenConfiguration {
   authorization_endpoint: string;
   token_endpoint: string;
+}
+
+export interface PresentationDefinition {
+  input_descriptors: {
+    issuance: {
+      manifest: string;
+    }[];
+  }[];
+}
+
+export interface VCRequest {
+  prompt?: string;
+  redirect_uri?: string;
+  presentation_definition: PresentationDefinition;
+  nonce?: string;
+  state?: string;
 }

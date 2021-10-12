@@ -17,12 +17,17 @@ module.exports = {
       ],
       include: require.resolve("@decentralized-identity/ion-tools"),
     });
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      "@emotion/core": require.resolve("@emotion/react"),
-      "emotion-theming": require.resolve("@emotion/react"),
-      jose: path.join(__dirname, "../node_modules/jose/dist/node/cjs"),
+    return {
+      ...config,
+      resolve: {
+        ...config.resolve,
+        alias: {
+          ...config.resolve.alias,
+          "@emotion/core": path.join(__dirname, "../node_modules/@emotion/react"),
+          "emotion-theming": path.join(__dirname, "../node_modules/@emotion/react"),
+          jose: path.join(__dirname, "../node_modules/jose/dist/node/cjs"),
+        },
+      },
     };
-    return config;
   },
 };

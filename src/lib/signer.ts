@@ -4,7 +4,6 @@ import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
 
 import { DID_ION_KEY_ID, SIOP_VALIDITY_IN_MINUTES } from "../configs/constants";
-import { AcquiredAttestation } from "../types";
 
 export interface KeyPair {
   publicJwk: JWK;

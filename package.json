@@ -14,10 +14,12 @@
     "start": "next start"
   },
   "dependencies": {
+    "@chakra-ui/icons": "^1.0.15",
     "@chakra-ui/react": "^1.6.8",
     "@decentralized-identity/ion-tools": "^0.1.0",
     "@emotion/react": "^11",
     "@emotion/styled": "^11",
+    "@heroicons/react": "^1.0.4",
     "axios": "^0.22.0",
     "base64url": "^3.0.1",
     "framer-motion": "^4",

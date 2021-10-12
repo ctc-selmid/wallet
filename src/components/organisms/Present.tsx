@@ -1,20 +1,20 @@
-import { Box, Button } from "@chakra-ui/react";
+import { Box, Button, Grid, Link, Text } from "@chakra-ui/react";
 import ION from "@decentralized-identity/ion-tools";
 import axios from "axios";
 import jsonwebtoken from "jsonwebtoken";
+import NextLink from "next/link";
 import qs from "querystring";
 import React from "react";
 
 import { useSigner } from "../../hooks/useSigner";
 import { getVC } from "../../lib/repository/vc";
 import { Signer } from "../../lib/signer";
-import { VCRequest } from "../../lib/utils";
-import { Manifest } from "../../types";
-import { Credential } from "../molecules/Credential";
+import { Manifest, VCRequest } from "../../types";
+import { CredentialCard } from "../molecules/CredentialCard";
 
 export interface PresentProps {
-  manifest: Manifest;
   vcRequest: VCRequest;
+  manifest: Manifest;
 }
 
 export const Present: React.FC<PresentProps> = ({ manifest, vcRequest }) => {
@@ -64,14 +64,31 @@ export const Present: React.FC<PresentProps> = ({ manifest, vcRequest }) => {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
       }
     );
-
-    console.log(exchangedVC);
   };
 
   return (
     <Box>
-      <Credential card={manifest.display.card} />
-      <Button onClick={presentVC}>Present</Button>
+      <Box mb="8">
+        <Text textAlign="center" fontSize="3xl" fontWeight="bold">
+          New Permission Request
+        </Text>
+      </Box>
+      <Box px="2" mb="8">
+        <CredentialCard card={manifest.display.card} />
+      </Box>
+
+      <Box px="2">
+        <Grid templateColumns="repeat(2, 1fr)" gap="4">
+          <Link as={NextLink} href="/">
+            <>
+              <Button>Cancel</Button>
+            </>
+          </Link>
+          <Button onClick={presentVC} colorScheme="blue">
+            Submit
+          </Button>
+        </Grid>
+      </Box>
     </Box>
   );
 };

@@ -11,8 +11,8 @@ export interface ScannerTemplateProps {}
 export const ScannerTemplate: React.FC<ScannerTemplateProps> = () => {
   return (
     <Body>
+      <Header />
       <Container>
-        <Header />
         <Scanner />
       </Container>
     </Body>

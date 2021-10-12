@@ -1,16 +1,16 @@
 import { Meta, Story } from "@storybook/react/types-6-0";
 
 import { card } from "../../fixtures";
-import { HomeTemplate as Component, HomeTemplateProps as Props } from "./Home";
+import { CredentialCard as Component, CredentialCardProps as Props } from "./CredentialCard";
 
 export default {
-  title: "Templates/Home",
+  title: "Molecules/CredentialCard",
   component: Component,
 } as Meta;
 
 const Template: Story<Props> = (args) => <Component {...args} />;
 
-export const Home = Template.bind({});
-Home.args = {
-  cards: [card, card, card],
+export const CredentialCard = Template.bind({});
+CredentialCard.args = {
+  card,
 };
