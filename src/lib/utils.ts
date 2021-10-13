@@ -5,6 +5,10 @@ import { VCRequest } from "../types";
 
 export type VCRequestType = "issue" | "present";
 
+export interface JWTHeader {
+  kid: string;
+}
+
 export const getRequestUrlFromQRCodeMessage = (message: string): string => {
   const urlSearchParams = new URLSearchParams(message);
   const requestUrl = urlSearchParams.get(QR_REQUEST_URI_KEY);
@@ -12,6 +16,11 @@ export const getRequestUrlFromQRCodeMessage = (message: string): string => {
     throw new Error("QR code does not contains request url");
   }
   return requestUrl;
+};
+
+export const getProtectedHeaderFromVCRequest = (jwt: string): JWTHeader => {
+  const { header } = jsonwebtoken.decode(jwt, { complete: true });
+  return header as JWTHeader;
 };
 
 export const getRequestFromVCRequest = (
