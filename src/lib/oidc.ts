@@ -21,7 +21,7 @@ export const authorize = (config: RedirectConfig): void => {
   const state = base64url(crypto.randomBytes(4));
   setCookie(null, COOKIE_ID_TOKEN_KEY, config.key);
   setCookie(null, COOKIE_ID_TOKEN_STATE, state);
-  window.location.href = `${config.authorizationEndpoint}?client_id=${config.clientId}&redirect_uri=${config.redirectUri}&response_type=code&scope=openid&state=${state}`;
+  window.location.href = `${config.authorizationEndpoint}&client_id=${config.clientId}&redirect_uri=${config.redirectUri}&response_type=code&scope=openid&state=${state}`;
 };
 
 export const getAndRefreshAuthorizationContext = (ctx: GetServerSidePropsContext): AuthorizationContext => {
