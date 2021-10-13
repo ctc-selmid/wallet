@@ -1,3 +1,4 @@
+import ION from "@decentralized-identity/ion-tools";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import { setCookie } from "nookies";
@@ -5,7 +6,11 @@ import React from "react";
 
 import { COOKIE_VC_REQUEST_KEY } from "../../configs/constants";
 import { proxyHttpRequest } from "../../lib/http";
-import { getRequestFromVCRequest, getRequestUrlFromQRCodeMessage } from "../../lib/utils";
+import {
+  getProtectedHeaderFromVCRequest,
+  getRequestFromVCRequest,
+  getRequestUrlFromQRCodeMessage,
+} from "../../lib/utils";
 
 const QrReader = dynamic(() => import("react-qr-reader"), { ssr: false }) as any;
 
@@ -24,6 +29,24 @@ export const Scanner: React.FC<ScannerProps> = () => {
     setIsProcessing(true);
     const requestUrl = getRequestUrlFromQRCodeMessage(message);
     const vcRequestInJwt = await proxyHttpRequest<string>("get", requestUrl);
+
+    /**
+     * TODO: エラー発生時にエラーページに遷移する
+     */
+    const header = getProtectedHeaderFromVCRequest(vcRequestInJwt);
+    const issDIDDocument = await ION.resolve(header.kid);
+    const vcRequestVerified = await ION.verifyJws({
+      jws: vcRequestInJwt,
+      publicJwk: issDIDDocument.didDocument.verificationMethod[0].publicKeyJwk,
+    });
+    if (!vcRequestVerified) {
+      return {
+        redirect: {
+          destination: "/",
+          permanent: false,
+        },
+      };
+    }
 
     const { vcRequestType, vcRequest } = await getRequestFromVCRequest(vcRequestInJwt);
     setCookie(null, COOKIE_VC_REQUEST_KEY, JSON.stringify(vcRequest));
