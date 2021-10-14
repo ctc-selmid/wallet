@@ -40,10 +40,10 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
         },
       };
     }
-    const tokenEndpoint = await axios.get(idTokenKey).then((resp) => resp.data.token_endpoint as any);
+    const openIdConfig = await axios.get(idTokenKey).then((resp) => resp.data as any);
     const idToken = await axios
       .get(
-        `${tokenEndpoint}&grant_type=authorization_code&code=${ctx.query.code}&code_verifier=${codeVerifier}&client_id=42b66b31-3b4f-4f50-a8af-a2632a03b669`
+        `${openIdConfig.token_endpoint}&grant_type=authorization_code&code=${ctx.query.code}&code_verifier=${codeVerifier}&client_id=42b66b31-3b4f-4f50-a8af-a2632a03b669`
       )
       .then((resp) => resp.data);
     acquiredAttestation[idTokenKey] = idToken;
