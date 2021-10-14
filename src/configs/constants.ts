@@ -5,6 +5,7 @@ export const PROXY_TARGET_KEY = "x-proxy-target";
 export const COOKIE_VC_REQUEST_KEY = "vc-request";
 export const COOKIE_ID_TOKEN_STATE = "state";
 export const COOKIE_ID_TOKEN_KEY = "id-token-key";
+export const COOKIE_ID_CODE_VERIFIER = "id-token-code-verifier";
 export const LOCAL_STORAGE_KEY_PAIR = "key-pair";
 export const LOCAL_STORAGE_VC = "vc";
 export const DID_ION_KEY_ID = "signingKey";

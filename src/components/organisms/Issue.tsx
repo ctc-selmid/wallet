@@ -20,13 +20,14 @@ export interface IssueProps {
 }
 
 // TODO: redirectUriを動的に設定する
+// TODO: https://wallet-selmid.vercel.app/issueに変更
 export const Issue: React.FC<IssueProps> = ({ vcRequest, manifest, acquiredAttestation }) => {
   const router = useRouter();
   const { signer } = useSigner();
 
   const getIdToken = async (RequiredToken: RequiredToken) => {
     const idTokenConfigulation = await proxyHttpRequest<IdTokenConfiguration>("get", RequiredToken.configuration);
-    const redirectUri = RequiredToken.redirect_uri ? RequiredToken.redirect_uri : "https://wallet-selmid.vercel.app/";
+    const redirectUri = RequiredToken.redirect_uri ? RequiredToken.redirect_uri : "https://wallet-selmid.vercel.app";
 
     authorize({
       key: RequiredToken.configuration,

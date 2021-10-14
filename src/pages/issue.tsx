@@ -29,7 +29,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     };
   }
   const vcRequest = JSON.parse(vcRequestString);
-  const { idTokenKey, idTokenState } = getAndRefreshAuthorizationContext(ctx);
+  const { idTokenKey, idTokenState, codeVerifier } = getAndRefreshAuthorizationContext(ctx);
   const acquiredAttestation = {};
   if (ctx.query.code) {
     if (!ctx.query.state || ctx.query.state !== idTokenState) {
@@ -40,8 +40,15 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
         },
       };
     }
-    acquiredAttestation[idTokenKey] = ctx.query.code;
+    const tokenEndpoint = await axios.get(idTokenKey).then((resp) => resp.data.token_endpoint as any);
+    const idToken = await axios
+      .get(
+        `${tokenEndpoint}&grant_type=authorization_code&code=${ctx.query.code}&code_verifier=${codeVerifier}&client_id=42b66b31-3b4f-4f50-a8af-a2632a03b669`
+      )
+      .then((resp) => resp.data);
+    acquiredAttestation[idTokenKey] = idToken;
   }
+
   const manifestUrl = vcRequest.presentation_definition.input_descriptors[0].issuance[0].manifest;
   const manifestResponse = await axios.get(manifestUrl);
   const { data: manifest } = manifestResponse;
