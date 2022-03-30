@@ -2,7 +2,8 @@ import { LOCAL_STORAGE_VC } from "../../configs/constants";
 import { Manifest } from "../../types";
 
 export interface VC {
-  jwt: string;
+  format?: string;
+  vc: string;
   manifest: Manifest;
 }
 

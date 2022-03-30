@@ -18,6 +18,7 @@ export interface SiopOptions {
   vc?: string;
   nonce?: string;
   state?: string;
+  key_ops?: string[];
 }
 
 export class Signer {
