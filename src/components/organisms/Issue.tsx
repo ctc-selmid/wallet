@@ -1,15 +1,14 @@
-import { Box, Button, Flex, Grid, Icon, Link, Text } from "@chakra-ui/react";
+import { Box, Button, Center, Flex, Grid, Icon, Link, Spinner, Text } from "@chakra-ui/react";
 import { BadgeCheckIcon, ChevronRightIcon } from "@heroicons/react/outline";
 import axios from "axios";
 import { useRouter } from "next/router";
-import { destroyCookie } from "nookies";
 import React from "react";
 
-import { LOCAL_STORAGE_VC_REQUEST_KEY } from "../../configs/constants";
 import { useSigner } from "../../hooks/useSigner";
 import { proxyHttpRequest } from "../../lib/http";
 import { authorize } from "../../lib/oidc";
-import { saveVC } from "../../lib/repository/vc";
+import { cleanVCRequest, saveVC } from "../../lib/repository/vc";
+import { getVCTypeFromJWT } from "../../lib/utils";
 import { AcquiredIdToken, IdTokenConfiguration, Manifest, RequiredToken, VCRequest } from "../../types";
 import { CredentialCard } from "../molecules/CredentialCard";
 
@@ -53,13 +52,16 @@ export const Issue: React.FC<IssueProps> = ({ vcRequest, manifest, acquiredAttes
     });
     const { data } = issueResponse;
     const { vc } = data as unknown as { vc: string };
+    const vcType = getVCTypeFromJWT(vc);
 
+    // TODO: formatは動的に設定する
     saveVC(vcRequest.presentation_definition.input_descriptors[0].issuance[0].manifest, {
       format: "jwt_vc",
       vc: vc,
       manifest,
+      type: vcType,
     });
-    // destroyCookie(null, COOKIE_VC_REQUEST_KEY);
+    cleanVCRequest();
     router.push("/");
   };
 
@@ -70,60 +72,72 @@ export const Issue: React.FC<IssueProps> = ({ vcRequest, manifest, acquiredAttes
           Add a credential
         </Text>
       </Box>
-      {manifest && acquiredAttestation && (
-        <>
-          <Box px="4" mb="8">
-            <CredentialCard card={manifest.display.card} />
-          </Box>
-          <Box mb="8">
-            {manifest.input.attestations.idTokens.map((idToken, i) => {
-              const { host } = new URL(idToken.configuration);
+      {manifest && acquiredAttestation ? (
+        manifest &&
+        acquiredAttestation && (
+          <>
+            <Box px="4" mb="8">
+              <CredentialCard card={manifest.display.card} />
+            </Box>
+            <Box mb="8">
+              {manifest.input.attestations.idTokens.map((idToken, i) => {
+                const { host } = new URL(idToken.configuration);
 
-              if (idToken.configuration === "https://self-issued.me") {
-                return <div key={i}></div>;
-              }
-              const fulfilled = acquiredAttestation && acquiredAttestation[idToken.configuration] !== undefined;
-              const bg = fulfilled ? "gray.50" : "blue.50";
-              const cursor = fulfilled ? undefined : "pointer";
-              const onclick = fulfilled ? undefined : () => getIdToken(idToken);
+                if (idToken.configuration === "https://self-issued.me") {
+                  return <div key={i}></div>;
+                }
+                const fulfilled = acquiredAttestation && acquiredAttestation[idToken.configuration] !== undefined;
+                const bg = fulfilled ? "gray.50" : "blue.50";
+                const cursor = fulfilled ? undefined : "pointer";
+                const onclick = fulfilled ? undefined : () => getIdToken(idToken);
 
-              return (
-                <Flex
-                  key={i}
-                  bg={bg}
-                  py="6"
-                  px="4"
-                  cursor={cursor}
-                  justifyContent="space-between"
-                  alignItems="center"
-                  disabled={fulfilled}
-                  onClick={onclick}
+                return (
+                  <Flex
+                    key={i}
+                    bg={bg}
+                    py="6"
+                    px="4"
+                    cursor={cursor}
+                    justifyContent="space-between"
+                    alignItems="center"
+                    onClick={onclick}
+                    _disabled={{ opacity: 0.6 }}
+                    // TODO: Sign in が終わっていたらdisabledにする
+                    // disabled={fulfilled}
+                  >
+                    <Box>
+                      <Text fontSize="lg" fontWeight="bold">
+                        Sign in to your account{" "}
+                        {fulfilled && <Icon w="4" h="4" color="green.400" as={BadgeCheckIcon} />}
+                      </Text>
+                      <Text fontSize="sm">{host}</Text>
+                    </Box>
+                    {!fulfilled && <Icon w="4" h="4" as={ChevronRightIcon} />}
+                  </Flex>
+                );
+              })}
+            </Box>
+            <Box px="4">
+              <Grid templateColumns="repeat(2, 1fr)" gap="4">
+                <Link href="/">
+                  <Button w="100%">Cancel</Button>
+                </Link>
+                <Button
+                  disabled={Object.keys(acquiredAttestation).length < manifest.input.attestations.idTokens.length}
+                  onClick={issueVC}
+                  colorScheme="blue"
                 >
-                  <Box>
-                    <Text fontSize="lg" fontWeight="bold">
-                      Sign in to your account {fulfilled && <Icon w="4" h="4" color="green.400" as={BadgeCheckIcon} />}
-                    </Text>
-                    <Text fontSize="sm">{host}</Text>
-                  </Box>
-                  {!fulfilled && <Icon w="4" h="4" as={ChevronRightIcon} />}
-                </Flex>
-              );
-            })}
-          </Box>
-          <Box px="4">
-            <Grid templateColumns="repeat(2, 1fr)" gap="4">
-              <Link href="/">
-                <Button w="100%">Cancel</Button>
-              </Link>
-              <Button
-                disabled={Object.keys(acquiredAttestation).length < manifest.input.attestations.idTokens.length}
-                onClick={issueVC}
-                colorScheme="blue"
-              >
-                Submit
-              </Button>
-            </Grid>
-          </Box>
+                  Submit
+                </Button>
+              </Grid>
+            </Box>
+          </>
+        )
+      ) : (
+        <>
+          <Center>
+            <Spinner thickness="4px" speed="0.65s" emptyColor="gray.200" color="blue.500" size="xl"></Spinner>
+          </Center>
         </>
       )}
     </Box>

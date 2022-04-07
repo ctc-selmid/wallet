@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@chakra-ui/icons": "^1.0.15",
-    "@chakra-ui/react": "^1.6.8",
+    "@chakra-ui/react": "^1.8.7",
     "@decentralized-identity/ion-tools": "^0.1.0",
     "@emotion/react": "^11",
     "@emotion/styled": "^11",

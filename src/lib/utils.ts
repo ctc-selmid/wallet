@@ -9,6 +9,12 @@ export interface JWTHeader {
   kid: string;
 }
 
+export interface VCData {
+  vc: {
+    type: string[];
+  };
+}
+
 export const getRequestUrlFromQRCodeMessage = (message: string): string => {
   const urlSearchParams = new URLSearchParams(message);
   const requestUrl = urlSearchParams.get(QR_REQUEST_URI_KEY);
@@ -34,4 +40,9 @@ export const getRequestFromVCRequest = (
     vcRequestType: decodedRequestData.prompt === "create" ? "issue" : "present",
     vcRequest: decodedRequestData,
   };
+};
+
+export const getVCTypeFromJWT = (jwt: string): string[] => {
+  const vcData = <VCData>jsonwebtoken.decode(jwt);
+  return vcData.vc.type;
 };
