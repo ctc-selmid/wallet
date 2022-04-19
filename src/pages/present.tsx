@@ -5,12 +5,7 @@ import { PresentTemplate } from "../components/templates/Present";
 import { LOCAL_STORAGE_VC_REQUEST_KEY } from "../configs/constants";
 import { Manifest, VCRequest } from "../types";
 
-interface PresentPageProps {
-  vcRequest: VCRequest;
-  manifest: Manifest;
-}
-
-const PresentPage: React.FC<PresentPageProps> = () => {
+const PresentPage: React.FC = () => {
   const [manifest, setManifest] = React.useState<Manifest>();
   const [vcRequest, setVcRequest] = React.useState<VCRequest>();
 

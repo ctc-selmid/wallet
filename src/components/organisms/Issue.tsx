@@ -1,4 +1,4 @@
-import { Box, Button, Center, Flex, Grid, Icon, Link, Spinner, Text } from "@chakra-ui/react";
+import { Box, Button, Center, Flex, Grid, Icon, Link, Progress, Spinner, Text } from "@chakra-ui/react";
 import { BadgeCheckIcon, ChevronRightIcon } from "@heroicons/react/outline";
 import axios from "axios";
 import { useRouter } from "next/router";
@@ -7,7 +7,7 @@ import React from "react";
 import { useSigner } from "../../hooks/useSigner";
 import { proxyHttpRequest } from "../../lib/http";
 import { authorize } from "../../lib/oidc";
-import { cleanVCRequest, saveVC } from "../../lib/repository/vc";
+import { saveVC } from "../../lib/repository/vc";
 import { getVCTypeFromJWT } from "../../lib/utils";
 import { AcquiredIdToken, IdTokenConfiguration, Manifest, RequiredToken, VCRequest } from "../../types";
 import { CredentialCard } from "../molecules/CredentialCard";
@@ -23,6 +23,7 @@ export interface IssueProps {
 export const Issue: React.FC<IssueProps> = ({ vcRequest, manifest, acquiredAttestation }) => {
   const router = useRouter();
   const { signer } = useSigner();
+  const [isLoading, setIsLoading] = React.useState(false);
 
   React.useEffect(() => {
     //
@@ -41,32 +42,37 @@ export const Issue: React.FC<IssueProps> = ({ vcRequest, manifest, acquiredAttes
   };
 
   const issueVC = async () => {
+    setIsLoading(true);
     const issueRequestIdToken = await signer.siop({
       aud: manifest.input.credentialIssuer,
       contract: manifest.display.contract,
       attestations: acquiredAttestation,
     });
+    try {
+      const issueResponse = await axios.post(manifest.input.credentialIssuer, issueRequestIdToken, {
+        headers: { "Content-Type": "text/plain" },
+      });
+      const { data } = issueResponse;
+      const { vc } = data as unknown as { vc: string };
+      const vcType = getVCTypeFromJWT(vc);
 
-    const issueResponse = await axios.post(manifest.input.credentialIssuer, issueRequestIdToken, {
-      headers: { "Content-Type": "text/plain" },
-    });
-    const { data } = issueResponse;
-    const { vc } = data as unknown as { vc: string };
-    const vcType = getVCTypeFromJWT(vc);
-
-    // TODO: formatは動的に設定する
-    saveVC(vcRequest.presentation_definition.input_descriptors[0].issuance[0].manifest, {
-      format: "jwt_vc",
-      vc: vc,
-      manifest,
-      type: vcType,
-    });
-    cleanVCRequest();
-    router.push("/");
+      // TODO: formatは動的に設定する
+      saveVC(vcRequest.presentation_definition.input_descriptors[0].issuance[0].manifest, {
+        format: "jwt_vc",
+        vc: vc,
+        manifest,
+        type: vcType,
+      });
+      router.push({ pathname: "/result", query: { type: "issue", result: "true" } });
+    } catch (e) {
+      router.push({ pathname: "/result", query: { type: "issue", result: "false", errorMessage: e } });
+      console.log(e);
+    }
   };
 
   return (
     <Box>
+      {isLoading ? <Progress size="xs" isIndeterminate /> : <Box paddingTop="4px"></Box>}
       <Box mb="8">
         <Text textAlign="center" fontSize="3xl" fontWeight="bold">
           Add a credential

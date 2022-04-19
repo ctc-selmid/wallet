@@ -3,8 +3,9 @@ import React from "react";
 
 export interface ContainerProps {
   children: React.ReactNode;
+  py: string;
 }
 
-export const Container: React.FC<ContainerProps> = ({ children }) => {
-  return <Box py="8">{children}</Box>;
+export const Container: React.FC<ContainerProps> = ({ children, py }) => {
+  return <Box py={py}>{children}</Box>;
 };

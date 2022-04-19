@@ -12,7 +12,7 @@ export const ScannerTemplate: React.FC<ScannerTemplateProps> = () => {
   return (
     <Body>
       <Header />
-      <Container>
+      <Container py="8">
         <Scanner />
       </Container>
     </Body>

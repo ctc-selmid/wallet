@@ -1,4 +1,4 @@
-import { Box, Button, Grid, Link, Text } from "@chakra-ui/react";
+import { Box, Button, Grid, Link, Progress, Text } from "@chakra-ui/react";
 import ION from "@decentralized-identity/ion-tools";
 import axios from "axios";
 import jsonwebtoken from "jsonwebtoken";
@@ -9,7 +9,7 @@ import qs from "querystring";
 import React from "react";
 
 import { useSigner } from "../../hooks/useSigner";
-import { cleanVCRequest, getVC } from "../../lib/repository/vc";
+import { getVC } from "../../lib/repository/vc";
 import { Signer } from "../../lib/signer";
 import { Manifest, VCRequest } from "../../types";
 import { SelectVC } from "../molecules/SelectVC";
@@ -22,6 +22,7 @@ export interface PresentProps {
 export const Present: React.FC<PresentProps> = ({ manifest, vcRequest }) => {
   const { signer } = useSigner();
   const router = useRouter();
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const [presentationVCID, setPresentationVCID] = React.useState<string[]>([]);
 
@@ -30,6 +31,7 @@ export const Present: React.FC<PresentProps> = ({ manifest, vcRequest }) => {
   let pairWiseDidSigner = undefined;
 
   const presentVC = async () => {
+    setIsLoading(true);
     /** VCにexchangeServiceがある場合 VC exchangeをする */
     const vcs = [];
     for (let i = 0; presentationVCID.length > i; i++) {
@@ -103,16 +105,16 @@ export const Present: React.FC<PresentProps> = ({ manifest, vcRequest }) => {
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
         }
       );
-    } catch (err) {
-      console.log("ERROR: " + err.message);
+      router.push({ pathname: "/result", query: { type: "present", result: "true" } });
+    } catch (e) {
+      router.push({ pathname: "/result", query: { type: "present", result: "false", errorMessage: e } });
+      console.log("ERROR: " + e.message);
     }
-    // TODO: Present結果を表示する
-    cleanVCRequest();
-    router.push("/");
   };
 
   return (
     <Box>
+      {isLoading ? <Progress size="xs" isIndeterminate /> : <Box paddingTop="4px"></Box>}
       <Box mb="8">
         <Text textAlign="center" fontSize="3xl" fontWeight="bold">
           New Permission Request
