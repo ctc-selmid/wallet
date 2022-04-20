@@ -1,6 +1,7 @@
 import { Box, Button, Center, Flex, Grid, Icon, Link, Progress, Spinner, Text } from "@chakra-ui/react";
 import { BadgeCheckIcon, ChevronRightIcon } from "@heroicons/react/outline";
 import axios from "axios";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import React from "react";
 
@@ -11,6 +12,8 @@ import { saveVC } from "../../lib/repository/vc";
 import { getVCTypeFromJWT } from "../../lib/utils";
 import { AcquiredIdToken, IdTokenConfiguration, Manifest, RequiredToken, VCRequest } from "../../types";
 import { CredentialCard } from "../molecules/CredentialCard";
+
+const PinInput = dynamic(() => import("react-pin-input"), { ssr: false });
 
 export interface IssueProps {
   vcRequest: VCRequest;
@@ -25,8 +28,10 @@ export const Issue: React.FC<IssueProps> = ({ vcRequest, manifest, acquiredAttes
   const { signer } = useSigner();
   const [isLoading, setIsLoading] = React.useState(false);
 
+  const [pinStatus, setPinStatus] = React.useState<undefined | "success" | "no entered">(undefined);
+
   React.useEffect(() => {
-    //
+    setPinStatus("no entered");
   }, [manifest]);
 
   const getIdToken = async (RequiredToken: RequiredToken) => {
@@ -123,13 +128,41 @@ export const Issue: React.FC<IssueProps> = ({ vcRequest, manifest, acquiredAttes
                 );
               })}
             </Box>
+            {pinStatus && (
+              <Box>
+                <Text textAlign="center" fontSize="lg" fontWeight="bold">
+                  Input Pin Code
+                </Text>
+                <Box p={3}>
+                  <Center>
+                    <PinInput
+                      length={4}
+                      initialValue=""
+                      type="numeric"
+                      inputMode="number"
+                      onChange={(value, index) => {
+                        if (value === "1234") {
+                          setPinStatus("success");
+                        } else {
+                          setPinStatus("no entered");
+                        }
+                      }}
+                    ></PinInput>
+                  </Center>
+                </Box>
+              </Box>
+            )}
+
             <Box px="4">
               <Grid templateColumns="repeat(2, 1fr)" gap="4">
                 <Link href="/">
                   <Button w="100%">Cancel</Button>
                 </Link>
                 <Button
-                  disabled={Object.keys(acquiredAttestation).length < manifest.input.attestations.idTokens.length}
+                  disabled={
+                    Object.keys(acquiredAttestation).length < manifest.input.attestations.idTokens.length ||
+                    pinStatus === "no entered"
+                  }
                   onClick={issueVC}
                   colorScheme="blue"
                 >
