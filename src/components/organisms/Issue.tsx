@@ -12,7 +12,6 @@ import { saveVC } from "../../lib/repository/vc";
 import { getVCTypeFromJWT } from "../../lib/utils";
 import { AcquiredIdToken, IdTokenConfiguration, Manifest, RequiredToken, VCRequest } from "../../types";
 import { CredentialCard } from "../molecules/CredentialCard";
-
 const PinInput = dynamic(() => import("react-pin-input"), { ssr: false });
 
 export interface IssueProps {
@@ -147,7 +146,7 @@ export const Issue: React.FC<IssueProps> = ({ vcRequest, manifest, acquiredAttes
                           setPinStatus("no entered");
                         }
                       }}
-                    ></PinInput>
+                    />
                   </Center>
                 </Box>
               </Box>

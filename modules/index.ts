@@ -1,13 +1,14 @@
-import crypto from "crypto";
 import axios from "axios";
+import crypto from "crypto";
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const EC = require("elliptic").ec;
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const canonicalize = require("canonicalize");
 const ec = new EC("secp256k1");
 
 const formats = [".png", ".jpeg", ".jpg"];
-export const getIamgeUrlInText = (text: string): string | undefined => {
-  const urlExpression =
-    /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
+export const getImageUrlInText = (text: string): string | undefined => {
+  const urlExpression = /[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)?/gi;
   const urlRegex = new RegExp(urlExpression);
   const matchedUrl = text.match(urlRegex);
   if (!matchedUrl) return undefined;
@@ -59,11 +60,7 @@ export const constants = {
 
 export const base64url = {
   encode: (unencoded) => {
-    return Buffer.from(unencoded)
-      .toString("base64")
-      .replace(/\+/g, "-")
-      .replace(/\//g, "_")
-      .replace(/=+$/, "");
+    return Buffer.from(unencoded).toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
   },
   decode: (encoded) => {
     encoded = encoded.replace(/-/g, "+").replace(/_/g, "/");
@@ -82,6 +79,17 @@ export const base64url = {
   },
 };
 
+interface DIDDocument {
+  verificationMethod: [
+    {
+      publicKeyJwk: {
+        x: string;
+        y: string;
+      };
+    }
+  ];
+}
+
 export const jwt = {
   decode: (jwt) => {
     const payload = JSON.parse(base64url.decode(jwt.split(".")[1]));
@@ -98,13 +106,13 @@ export const jwt = {
     const message = `${splittedJwt[0]}.${splittedJwt[1]}`;
     const did = header.kid;
 
-    const didDocumentResponse = await axios.get(
-      `https://beta.discover.did.microsoft.com/1.0/identifiers/${did}`,
-    );
+    const didDocumentResponse = await axios
+      .get<DIDDocument>(`https://beta.discover.did.microsoft.com/1.0/identifiers/${did}`)
+      .then((res) => res.data);
 
     //FIXME: 複数public keyがある場合にループしてKIDを元に取得
-    const publicKeyJwk =
-      didDocumentResponse.data.didDocument.verificationMethod[0].publicKeyJwk;
+    const publicKeyJwk = didDocumentResponse.verificationMethod[0].publicKeyJwk;
+    console.log(publicKeyJwk);
 
     const pub = {
       x: base64url.decodeToBuffer(publicKeyJwk.x),
@@ -115,10 +123,7 @@ export const jwt = {
       r: signature.slice(0, 32),
       s: signature.slice(32, 64),
     };
-    const digest = crypto
-      .createHash(constants.hash.type)
-      .update(message)
-      .digest();
+    const digest = crypto.createHash(constants.hash.type).update(message).digest();
     const verified = key.verify(digest, signatureInRS);
     if (!verified) {
       throw new Error("signature not verified");
@@ -187,7 +192,7 @@ export class JsonCanonicalizer {
   /**
    * Canonicalizes the given content as a UTF8 buffer.
    */
-  public static canonicalizeAsBuffer(content: object): Buffer {
+  public static canonicalizeAsBuffer(content): Buffer {
     const canonicalizedString: string = canonicalize(content);
     const contentBuffer = Buffer.from(canonicalizedString);
     return contentBuffer;
@@ -230,8 +235,7 @@ export const publicKeyJwkToIonDid = (publicKeyJwk) => {
     deltaHash,
     recoveryCommitment: commitment_hash,
   };
-  const canonicalizedStringBuffer =
-    JsonCanonicalizer.canonicalizeAsBuffer(suffixData);
+  const canonicalizedStringBuffer = JsonCanonicalizer.canonicalizeAsBuffer(suffixData);
   const multihashed = multihash(canonicalizedStringBuffer);
   const didUniqueSuffix = base64url.encode(multihashed);
   const shortFormDid = `did:${constants.did.methodName}:${didUniqueSuffix}`;
@@ -239,11 +243,8 @@ export const publicKeyJwkToIonDid = (publicKeyJwk) => {
     suffixData,
     delta,
   };
-  const canonicalizedInitialStateBuffer =
-    JsonCanonicalizer.canonicalizeAsBuffer(initialState);
-  const encodedCanonicalizedInitialStateString = base64url.encode(
-    canonicalizedInitialStateBuffer,
-  );
+  const canonicalizedInitialStateBuffer = JsonCanonicalizer.canonicalizeAsBuffer(initialState);
+  const encodedCanonicalizedInitialStateString = base64url.encode(canonicalizedInitialStateBuffer);
   const longFormDid = `${shortFormDid}:${encodedCanonicalizedInitialStateString}`;
   return longFormDid;
 };
@@ -267,10 +268,7 @@ export class Wallet {
       alg: constants.jwt.header.alg,
       kid: `${this.did}#${constants.did.keyId}`,
     };
-    const digest = crypto
-      .createHash("sha256")
-      .update(JSON.stringify(this.publicKeyJwk))
-      .digest();
+    const digest = crypto.createHash("sha256").update(JSON.stringify(this.publicKeyJwk)).digest();
     const sub = base64url.encode(digest);
     const payload = {
       iss: constants.jwt.payload.iss,
@@ -312,9 +310,7 @@ export class Wallet {
     const encodedHeader = base64url.encode(JSON.stringify(header));
     const encodedPayload = base64url.encode(JSON.stringify(payload));
     const message = `${encodedHeader}.${encodedPayload}`;
-    const signature = base64url.encode(
-      crypto.createSign(constants.hash.type).update(message).sign(pem),
-    );
+    const signature = base64url.encode(crypto.createSign(constants.hash.type).update(message).sign(pem));
     const result = `${encodedHeader}.${encodedPayload}.${signature}`;
     return result;
   };
