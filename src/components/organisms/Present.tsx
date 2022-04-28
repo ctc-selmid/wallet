@@ -68,8 +68,9 @@ export const Present: React.FC<PresentProps> = ({ manifest, vcRequest }) => {
 
     const vp = await pairWiseDidSigner.createVP(vcs, vcRequest.iss);
 
+    // TODO: 動的に変更する
     const attestations = {
-      presentations: { sclvc: vp },
+      presentations: { [vcRequest.presentation_definition.input_descriptors[0].id]: vp },
     };
 
     const verifyRequestIdToken = pairWiseDidSigner
