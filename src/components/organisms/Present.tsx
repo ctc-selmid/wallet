@@ -35,13 +35,16 @@ export const Present: React.FC<PresentProps> = ({ manifest, vcRequest }) => {
     /** VCにexchangeServiceがある場合 VC exchangeをする */
     const vcs = [];
     for (let i = 0; presentationVCID.length > i; i++) {
+      // 選択したVCを抽出する
       const key = presentationVCID[i];
       const vc = getVC(key);
       const decoded = jsonwebtoken.decode(vc.vc) as any;
 
+      // VCにexchangeServiceがある場合 VC exchangeをする
       if (decoded["vc"]["exchangeService"]["id"] !== undefined) {
         const exchangeService = decoded.vc.exchangeService.id;
         const pairWiseDidKeyPair = await ION.generateKeyPair();
+        // pairWiseDidSignerを生成する
         pairWiseDidSigner = new Signer();
         await pairWiseDidSigner.init(pairWiseDidKeyPair);
 

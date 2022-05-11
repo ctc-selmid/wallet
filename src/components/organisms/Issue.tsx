@@ -140,6 +140,7 @@ export const Issue: React.FC<IssueProps> = ({ vcRequest, manifest, acquiredAttes
                       type="numeric"
                       inputMode="number"
                       onChange={(value, index) => {
+                        // TODO: 動的にpin valueを設定する
                         if (value === "1234") {
                           setPinStatus("success");
                         } else {
