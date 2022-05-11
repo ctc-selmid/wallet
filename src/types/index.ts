@@ -42,6 +42,7 @@ export interface IdTokenConfiguration {
 
 export interface PresentationDefinition {
   input_descriptors: {
+    id: string;
     issuance: {
       manifest: string;
     }[];
@@ -54,4 +55,6 @@ export interface VCRequest {
   presentation_definition: PresentationDefinition;
   nonce?: string;
   state?: string;
+  client_id?: string;
+  iss?: string;
 }

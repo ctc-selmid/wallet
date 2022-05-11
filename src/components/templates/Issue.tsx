@@ -16,7 +16,7 @@ export const IssueTemplate: React.FC<IssueTemplateProps> = ({ vcRequest, manifes
   return (
     <Body>
       <Header />
-      <Container>
+      <Container py="0">
         <Issue vcRequest={vcRequest} manifest={manifest} acquiredAttestation={acquiredAttestation} />
       </Container>
     </Body>

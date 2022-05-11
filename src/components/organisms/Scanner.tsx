@@ -1,10 +1,9 @@
 import ION from "@decentralized-identity/ion-tools";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
-import { setCookie } from "nookies";
 import React from "react";
 
-import { COOKIE_VC_REQUEST_KEY } from "../../configs/constants";
+import { LOCAL_STORAGE_VC_REQUEST_KEY } from "../../configs/constants";
 import { proxyHttpRequest } from "../../lib/http";
 import {
   getProtectedHeaderFromVCRequest,
@@ -48,8 +47,9 @@ export const Scanner: React.FC<ScannerProps> = () => {
       };
     }
 
-    const { vcRequestType, vcRequest } = await getRequestFromVCRequest(vcRequestInJwt);
-    setCookie(null, COOKIE_VC_REQUEST_KEY, JSON.stringify(vcRequest));
+    const { vcRequestType, vcRequest } = getRequestFromVCRequest(vcRequestInJwt);
+
+    localStorage.setItem(LOCAL_STORAGE_VC_REQUEST_KEY, JSON.stringify(vcRequest));
 
     router.push(`/${vcRequestType}`);
   };

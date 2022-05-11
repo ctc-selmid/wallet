@@ -15,7 +15,7 @@ export const PresentTemplate: React.FC<PresentTemplateProps> = ({ vcRequest, man
   return (
     <Body>
       <Header />
-      <Container>
+      <Container py="0">
         <Present manifest={manifest} vcRequest={vcRequest} />
       </Container>
     </Body>

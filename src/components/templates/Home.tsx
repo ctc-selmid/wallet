@@ -15,7 +15,7 @@ export const HomeTemplate: React.FC<HomeTemplateProps> = ({ cards }) => {
   return (
     <Body>
       <Header />
-      <Container>
+      <Container py="8">
         <Box px="4">
           <CredentialList cards={cards} />
         </Box>

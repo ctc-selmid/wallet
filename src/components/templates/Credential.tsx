@@ -14,7 +14,7 @@ export const CredentialTemplate: React.FC<CredentialTemplateProps> = ({ card }) 
   return (
     <Body>
       <Header />
-      <Container>
+      <Container py="0">
         <CredentialDetail card={card} />
       </Container>
     </Body>
