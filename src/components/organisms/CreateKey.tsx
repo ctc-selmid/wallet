@@ -14,6 +14,7 @@ export const CreateKey: React.FC<CreateKeyProps> = () => {
 
   const showSecret = () => setShow(!show);
   const createKey = async () => {
+    //TODO: 一致していなければエラーを出す
     if (password === aPassword) {
       await initKeyPair(password);
       router.push("/");
