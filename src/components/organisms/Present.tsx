@@ -1,18 +1,15 @@
-import { Box, Button, Grid, Link, Progress, Text } from "@chakra-ui/react";
-import ION from "@decentralized-identity/ion-tools";
-import axios from "axios";
-import jsonwebtoken from "jsonwebtoken";
-import moment from "moment";
+import { Box, Button, Grid, Link, Modal, ModalContent, ModalOverlay, Progress, Text } from "@chakra-ui/react";
+import { useDisclosure } from "@chakra-ui/react";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
-import qs from "querystring";
 import React from "react";
 
-import { useSigner } from "../../hooks/useSigner";
-import { getVC } from "../../lib/repository/vc";
+import { present } from "../../lib/present";
 import { Signer } from "../../lib/signer";
+import { KeyPair } from "../../lib/signer";
 import { Manifest, VCRequest } from "../../types";
 import { SelectVC } from "../molecules/SelectVC";
+import { Unlock } from "./Unlock";
 
 export interface PresentProps {
   vcRequest: VCRequest;
@@ -20,95 +17,21 @@ export interface PresentProps {
 }
 
 export const Present: React.FC<PresentProps> = ({ manifest, vcRequest }) => {
-  const { signer } = useSigner();
   const router = useRouter();
   const [isLoading, setIsLoading] = React.useState(false);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const initialRef = React.useRef(null);
+  const finalRef = React.useRef(null);
 
   const [presentationVCID, setPresentationVCID] = React.useState<string[]>([]);
 
-  const descriptor_map: [{ id?: string; path?: string; encoding?: string; format?: string }?] = [];
-
-  let pairWiseDidSigner = undefined;
-
-  const presentVC = async () => {
+  const presentVC = async (keyPair: KeyPair) => {
     setIsLoading(true);
     /** VCにexchangeServiceがある場合 VC exchangeをする */
-    const vcs = [];
-    for (let i = 0; presentationVCID.length > i; i++) {
-      // 選択したVCを抽出する
-      const key = presentationVCID[i];
-      const vc = getVC(key);
-      const decoded = jsonwebtoken.decode(vc.vc) as any;
-
-      // VCにexchangeServiceがある場合 VC exchangeをする
-      if (decoded["vc"]["exchangeService"]["id"] !== undefined) {
-        const exchangeService = decoded.vc.exchangeService.id;
-        const pairWiseDidKeyPair = await ION.generateKeyPair();
-        // pairWiseDidSignerを生成する
-        pairWiseDidSigner = new Signer();
-        await pairWiseDidSigner.init(pairWiseDidKeyPair);
-
-        const exchangeRequestIdToken = await signer.siop({
-          aud: exchangeService,
-          contract: manifest?.display?.contract,
-          recipient: pairWiseDidSigner.did,
-          vc: vc.vc,
-        });
-        const exchangeResponse = await axios.post(exchangeService, exchangeRequestIdToken, {
-          headers: { "Content-Type": "text/plain" },
-        });
-        const { vc: exchangedVC } = exchangeResponse.data as unknown as { vc: string };
-        vc.vc = exchangedVC;
-      }
-      vcs.push(vc.vc);
-      descriptor_map.push({
-        path: `$.attestations.presentations.${vcRequest.presentation_definition.input_descriptors[0].id}`,
-        id: `${vcRequest.presentation_definition.input_descriptors[i].id}`,
-        encoding: "base64Url",
-        format: vc.format === "jwt_vc" ? "JWT" : "JSON-LD",
-      });
-    }
-
-    const vp = await pairWiseDidSigner.createVP(vcs, vcRequest.iss);
-
-    // TODO: 動的に変更する
-    const attestations = {
-      presentations: { [vcRequest.presentation_definition.input_descriptors[0].id]: vp },
-    };
-
-    const verifyRequestIdToken = pairWiseDidSigner
-      ? await pairWiseDidSigner.siop({
-          aud: vcRequest.redirect_uri ? vcRequest.redirect_uri : vcRequest.client_id,
-          nonce: vcRequest.nonce,
-          state: vcRequest.state,
-          attestations,
-          presentation_submission: {
-            descriptor_map,
-          },
-          nbf: moment().unix(),
-        })
-      : await signer.siop({
-          aud: vcRequest.redirect_uri ? vcRequest.redirect_uri : vcRequest.client_id,
-          nonce: vcRequest.nonce,
-          state: vcRequest.state,
-          attestations,
-          presentation_submission: {
-            descriptor_map,
-          },
-          nbf: moment().unix(),
-        });
-
+    const signer = new Signer();
+    await signer.init(keyPair);
     try {
-      await axios.post(
-        vcRequest.redirect_uri ? vcRequest.redirect_uri : vcRequest.client_id,
-        qs.stringify({
-          id_token: verifyRequestIdToken,
-          state: vcRequest.state,
-        }),
-        {
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        }
-      );
+      await present(presentationVCID, signer, vcRequest, manifest);
       router.push({ pathname: "/result", query: { type: "present", result: "true" } });
     } catch (e) {
       router.push({ pathname: "/result", query: { type: "present", result: "false", errorMessage: e } });
@@ -143,7 +66,7 @@ export const Present: React.FC<PresentProps> = ({ manifest, vcRequest }) => {
             </>
           </Link>
           <Button
-            onClick={presentVC}
+            onClick={onOpen}
             colorScheme="blue"
             disabled={vcRequest && presentationVCID.length < vcRequest.presentation_definition.input_descriptors.length}
           >
@@ -151,6 +74,12 @@ export const Present: React.FC<PresentProps> = ({ manifest, vcRequest }) => {
           </Button>
         </Grid>
       </Box>
+      <Modal initialFocusRef={initialRef} finalFocusRef={finalRef} isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <Unlock onUnlock={presentVC} />
+        </ModalContent>
+      </Modal>
     </Box>
   );
 };
