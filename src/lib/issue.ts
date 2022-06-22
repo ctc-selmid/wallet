@@ -4,6 +4,13 @@ import { AcquiredIdToken, Manifest, VCRequest } from "../types";
 import { saveVC } from "./repository/vc";
 import { Signer } from "./signer";
 import { getVCTypeFromJWT } from "./utils";
+
+interface IIssueResponse {
+  data: {
+    vc: string;
+  };
+}
+
 export const issue = async (
   signer: Signer,
   vcRequest: VCRequest,
@@ -15,11 +22,10 @@ export const issue = async (
     contract: manifest.display.contract,
     attestations: acquiredAttestation,
   });
-  const issueResponse = await axios.post(manifest.input.credentialIssuer, issueRequestIdToken, {
+  const issueResponse = await axios.post<string, IIssueResponse>(manifest.input.credentialIssuer, issueRequestIdToken, {
     headers: { "Content-Type": "text/plain" },
   });
-  const { data } = issueResponse;
-  const { vc } = data as unknown as { vc: string };
+  const vc = issueResponse.data.vc;
   const vcType = getVCTypeFromJWT(vc);
 
   // TODO: formatは動的に設定する

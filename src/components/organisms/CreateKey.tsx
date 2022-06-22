@@ -3,20 +3,17 @@ import { useRouter } from "next/router";
 import React from "react";
 
 import { initKeyPair } from "../../lib/repository/keyPair";
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface CreateKeyProps {}
 
-export const CreateKey: React.FC<CreateKeyProps> = () => {
+export const CreateKey: React.FC = () => {
   const router = useRouter();
   const [show, setShow] = React.useState(false);
-  const [password, setPassword] = React.useState("");
-  const [aPassword, setAPassword] = React.useState("");
+  const [passwords, setPasswords] = React.useState({ password: "", passwordConfirmation: "" });
 
   const showSecret = () => setShow(!show);
   const createKey = async () => {
     //TODO: 一致していなければエラーを出す
-    if (password === aPassword) {
-      await initKeyPair(password);
+    if (passwords.password === passwords.passwordConfirmation) {
+      await initKeyPair(passwords.password);
       router.push("/");
     }
   };
@@ -32,7 +29,7 @@ export const CreateKey: React.FC<CreateKeyProps> = () => {
             pr="4.5rem"
             type={show ? "text" : "password"}
             placeholder="Enter password"
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => setPasswords({ password: e.target.value, ...passwords })}
             autoComplete="new-password"
           />
           <InputRightElement width="4.5rem">
@@ -47,7 +44,7 @@ export const CreateKey: React.FC<CreateKeyProps> = () => {
             pr="4.5rem"
             type={show ? "text" : "password"}
             placeholder="Enter password"
-            onChange={(e) => setAPassword(e.target.value)}
+            onChange={(e) => setPasswords({ passwordConfirmation: e.target.value, ...passwords })}
             autoComplete="new-password"
           />
           <InputRightElement width="4.5rem">

@@ -6,10 +6,7 @@ import { isExistKeyPair } from "../lib/repository/keyPair";
 import { getVCs } from "../lib/repository/vc";
 import { Card } from "../types";
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface IndexPageProps {}
-
-const IndexPage: React.FC<IndexPageProps> = () => {
+const IndexPage: React.FC = () => {
   const [cards, setCards] = React.useState<Card[]>([]);
   const router = useRouter();
   React.useEffect(() => {

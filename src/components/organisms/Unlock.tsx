@@ -3,7 +3,7 @@ import React from "react";
 
 import { getKeyPair } from "../../lib/repository/keyPair";
 import { KeyPair } from "../../lib/signer";
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
+
 export interface UnlockProps {
   onUnlock: (key: KeyPair) => void;
 }

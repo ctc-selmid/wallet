@@ -7,6 +7,14 @@ import qs from "querystring";
 import { Manifest, VCRequest } from "../types";
 import { getVC } from "./repository/vc";
 import { Signer } from "./signer";
+
+interface Descriptor {
+  id?: string;
+  path?: string;
+  encoding?: string;
+  format?: string;
+}
+
 export const present = async (
   presentationVCID: string[],
   signer: Signer,
@@ -16,7 +24,7 @@ export const present = async (
   /** VCにexchangeServiceがある場合 VC exchangeをする */
   const vcs = [];
   let pairWiseDidSigner = undefined;
-  const descriptor_map: [{ id?: string; path?: string; encoding?: string; format?: string }?] = [];
+  const descriptor_map: [Descriptor?] = [];
   for (let i = 0; presentationVCID.length > i; i++) {
     // 選択したVCを抽出する
     const key = presentationVCID[i];
