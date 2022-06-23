@@ -52,7 +52,7 @@ export const manifest: Manifest = {
 export const presentation_definition: PresentationDefinition = {
   input_descriptors: [
     {
-      id: "",
+      id: "fixture-vc",
       issuance: [
         {
           manifest:

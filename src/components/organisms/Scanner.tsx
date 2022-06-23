@@ -13,10 +13,7 @@ import {
 
 const QrReader = dynamic(() => import("react-qr-reader"), { ssr: false }) as any;
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ScannerProps {}
-
-export const Scanner: React.FC<ScannerProps> = () => {
+export const Scanner: React.FC = () => {
   const [isProcessing, setIsProcessing] = React.useState(false);
 
   const router = useRouter();

@@ -14,4 +14,5 @@ export const Result = Template.bind({});
 Result.args = {
   type: "issue",
   result: false,
+  errorMessage: "This is an error message",
 };

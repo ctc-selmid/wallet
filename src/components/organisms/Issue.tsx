@@ -1,17 +1,31 @@
-import { Box, Button, Center, Flex, Grid, Icon, Link, Progress, Spinner, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Center,
+  Flex,
+  Grid,
+  Icon,
+  Link,
+  Modal,
+  ModalContent,
+  ModalOverlay,
+  Progress,
+  Spinner,
+  Text,
+} from "@chakra-ui/react";
+import { useDisclosure } from "@chakra-ui/react";
 import { BadgeCheckIcon, ChevronRightIcon } from "@heroicons/react/outline";
-import axios from "axios";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import React from "react";
 
-import { useSigner } from "../../hooks/useSigner";
 import { proxyHttpRequest } from "../../lib/http";
+import { issue } from "../../lib/issue";
 import { authorize } from "../../lib/oidc";
-import { saveVC } from "../../lib/repository/vc";
-import { getVCTypeFromJWT } from "../../lib/utils";
+import { KeyPair, Signer } from "../../lib/signer";
 import { AcquiredIdToken, IdTokenConfiguration, Manifest, RequiredToken, VCRequest } from "../../types";
 import { CredentialCard } from "../molecules/CredentialCard";
+import { Unlock } from "./Unlock";
 const PinInput = dynamic(() => import("react-pin-input"), { ssr: false });
 
 export interface IssueProps {
@@ -24,7 +38,10 @@ export interface IssueProps {
 // TODO: https://wallet-selmid.vercel.app/issueに変更
 export const Issue: React.FC<IssueProps> = ({ vcRequest, manifest, acquiredAttestation }) => {
   const router = useRouter();
-  const { signer } = useSigner();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const initialRef = React.useRef(null);
+  const finalRef = React.useRef(null);
+
   const [isLoading, setIsLoading] = React.useState(false);
 
   const [pinStatus, setPinStatus] = React.useState<undefined | "success" | "no entered">(undefined);
@@ -45,28 +62,12 @@ export const Issue: React.FC<IssueProps> = ({ vcRequest, manifest, acquiredAttes
     });
   };
 
-  const issueVC = async () => {
+  const issueVC = async (keyPair: KeyPair) => {
     setIsLoading(true);
-    const issueRequestIdToken = await signer.siop({
-      aud: manifest.input.credentialIssuer,
-      contract: manifest.display.contract,
-      attestations: acquiredAttestation,
-    });
+    const signer = new Signer();
+    await signer.init(keyPair);
     try {
-      const issueResponse = await axios.post(manifest.input.credentialIssuer, issueRequestIdToken, {
-        headers: { "Content-Type": "text/plain" },
-      });
-      const { data } = issueResponse;
-      const { vc } = data as unknown as { vc: string };
-      const vcType = getVCTypeFromJWT(vc);
-
-      // TODO: formatは動的に設定する
-      saveVC(vcRequest.presentation_definition.input_descriptors[0].issuance[0].manifest, {
-        format: "jwt_vc",
-        vc: vc,
-        manifest,
-        type: vcType,
-      });
+      await issue(signer, vcRequest, manifest, acquiredAttestation);
       router.push({ pathname: "/result", query: { type: "issue", result: "true" } });
     } catch (e) {
       router.push({ pathname: "/result", query: { type: "issue", result: "false", errorMessage: e } });
@@ -163,7 +164,7 @@ export const Issue: React.FC<IssueProps> = ({ vcRequest, manifest, acquiredAttes
                     Object.keys(acquiredAttestation).length < manifest.input.attestations.idTokens.length ||
                     pinStatus === "no entered"
                   }
-                  onClick={issueVC}
+                  onClick={onOpen}
                   colorScheme="blue"
                 >
                   Submit
@@ -179,6 +180,12 @@ export const Issue: React.FC<IssueProps> = ({ vcRequest, manifest, acquiredAttes
           </Center>
         </>
       )}
+      <Modal initialFocusRef={initialRef} finalFocusRef={finalRef} isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <Unlock onUnlock={issueVC} />
+        </ModalContent>
+      </Modal>
     </Box>
   );
 };

@@ -3,10 +3,7 @@ import { Icon, Link } from "@chakra-ui/react";
 import { HomeIcon, QrcodeIcon } from "@heroicons/react/outline";
 import React from "react";
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface HeaderProps {}
-
-export const Header: React.FC<HeaderProps> = () => {
+export const Header: React.FC = () => {
   return (
     <Flex bg="blue.400" h={12} p={4} justifyContent="space-between" alignItems="center">
       <Link href="/">
