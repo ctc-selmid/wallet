@@ -74,3 +74,5 @@ export const vcVerifyRequest: VCRequest = {
   redirect_uri: "https://6ec4-39-110-214-139.ngrok.io/presentation-response",
   presentation_definition,
 };
+
+export const presentationVCID: string[] = ["fixture_vc"];

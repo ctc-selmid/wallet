@@ -23,7 +23,7 @@ export interface RequiredPresentation {
 
 export interface RequiredAttestation {
   idTokens: RequiredToken[];
-  presentations: RequiredPresentation[];
+  presentations?: RequiredPresentation[];
 }
 
 export interface AcquiredIdToken {

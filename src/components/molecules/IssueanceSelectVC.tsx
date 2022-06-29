@@ -20,13 +20,13 @@ import { getVCsByType, VC } from "../../lib/repository/vc";
 import { Manifest } from "../../types";
 import { CredentialCard } from "./CredentialCard";
 
-interface Props {
+export interface SelectVCProps {
   manifest: Manifest;
   presentationVCID: string[];
   setPresentationVCID: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
-export const SelectVC: React.FC<Props> = (props) => {
+export const SelectVC: React.FC<SelectVCProps> = (props) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const fulfilled = undefined;
   const [selectedVC, setSelectedVC] = React.useState<VC>();
