@@ -25,6 +25,7 @@ import { authorize } from "../../lib/oidc";
 import { KeyPair, Signer } from "../../lib/signer";
 import { AcquiredIdToken, IdTokenConfiguration, Manifest, RequiredToken, VCRequest } from "../../types";
 import { CredentialCard } from "../molecules/CredentialCard";
+import { SelectVC } from "../molecules/IssueanceSelectVC";
 import { Unlock } from "./Unlock";
 const PinInput = dynamic(() => import("react-pin-input"), { ssr: false });
 
@@ -43,7 +44,7 @@ export const Issue: React.FC<IssueProps> = ({ vcRequest, manifest, acquiredAttes
   const finalRef = React.useRef(null);
 
   const [isLoading, setIsLoading] = React.useState(false);
-
+  const [presentationVCID, setPresentationVCID] = React.useState<string[]>([]);
   const [pinStatus, setPinStatus] = React.useState<undefined | "success" | "no entered">(undefined);
 
   React.useEffect(() => {
@@ -67,10 +68,10 @@ export const Issue: React.FC<IssueProps> = ({ vcRequest, manifest, acquiredAttes
     const signer = new Signer();
     await signer.init(keyPair);
     try {
-      await issue(signer, vcRequest, manifest, acquiredAttestation);
+      await issue(signer, vcRequest, manifest, acquiredAttestation, presentationVCID);
       router.push({ pathname: "/result", query: { type: "issue", result: "true" } });
     } catch (e) {
-      router.push({ pathname: "/result", query: { type: "issue", result: "false", errorMessage: e } });
+      router.push({ pathname: "/result", query: { type: "issue", result: "false", errorMessage: e.message } });
       console.log(e);
     }
   };
@@ -127,6 +128,15 @@ export const Issue: React.FC<IssueProps> = ({ vcRequest, manifest, acquiredAttes
                   </Flex>
                 );
               })}
+            </Box>
+            <Box paddingBottom={3}>
+              {vcRequest && (
+                <SelectVC
+                  manifest={manifest}
+                  presentationVCID={presentationVCID}
+                  setPresentationVCID={setPresentationVCID}
+                />
+              )}
             </Box>
             {pinStatus && (
               <Box>

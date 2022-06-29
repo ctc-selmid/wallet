@@ -8,7 +8,7 @@ import { present } from "../../lib/present";
 import { Signer } from "../../lib/signer";
 import { KeyPair } from "../../lib/signer";
 import { Manifest, VCRequest } from "../../types";
-import { SelectVC } from "../molecules/SelectVC";
+import { SelectVC } from "../molecules/PresentationSelectVC";
 import { Unlock } from "./Unlock";
 
 export interface PresentProps {

@@ -95,7 +95,7 @@ export class Signer {
       payload: {
         iat: moment().unix(),
         exp: moment().add(SIOP_VALIDITY_IN_MINUTES, "minutes").unix(),
-        purpose: "verify",
+        nbf: moment().unix(),
         jti: uuidv4().toUpperCase(),
         sub: await calculateThumbprint(this.keyPair.publicJwk),
         vp: {
