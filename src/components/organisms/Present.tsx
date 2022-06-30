@@ -31,7 +31,7 @@ export const Present: React.FC<PresentProps> = ({ manifest, vcRequest }) => {
     const signer = new Signer();
     await signer.init(keyPair);
     try {
-      await present(presentationVCID, signer, vcRequest, manifest);
+      await present(presentationVCID, signer, vcRequest);
       router.push({ pathname: "/result", query: { type: "present", result: "true" } });
     } catch (e) {
       router.push({ pathname: "/result", query: { type: "present", result: "false", errorMessage: e } });
