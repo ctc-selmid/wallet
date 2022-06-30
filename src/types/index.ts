@@ -16,8 +16,14 @@ export interface RequiredToken {
   redirect_uri: string;
 }
 
+export interface RequiredPresentation {
+  id: string;
+  credentialType: string;
+}
+
 export interface RequiredAttestation {
   idTokens: RequiredToken[];
+  presentations?: RequiredPresentation[];
 }
 
 export interface AcquiredIdToken {
